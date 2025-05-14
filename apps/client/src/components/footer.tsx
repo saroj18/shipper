@@ -3,9 +3,7 @@ import Logo from './logo';
 
 const Footer = () => {
   return (
-    <footer className="border-t border-gray-800 bg-white text-black py-12">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+    <footer className=" flex justify-between px-14 items-center bg-gray-200 text-black py-4">
           <Logo/>
           <div className="flex gap-6">
             <Link to="#" className="text-xl">
@@ -21,8 +19,6 @@ const Footer = () => {
           <div className="text-lg text-black">
             © 2025 MERNDeploy, Inc. All rights reserved.
           </div>
-        </div>
-      </div>
     </footer>
   );
 }

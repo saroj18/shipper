@@ -1,10 +1,9 @@
-import { Link } from 'react-router';
-import Logo from './logo';
-import { Button } from './ui/button';
+import { Link } from "react-router";
+import Logo from "./logo";
 
 const Navbar = () => {
   return (
-    <header className="sticky top-0 z-40 w-full border-2 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-40 w-full bg-white">
       <div className="container flex h-20 mx-auto items-center justify-between">
         <div className="flex items-center gap-6">
           <Logo />
@@ -41,19 +40,11 @@ const Navbar = () => {
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-x-8">
-          <Button
-          size={'lg'}
-            variant={'outline'}
-            className="text-xl font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Log in
-          </Button>
-          <Button size={'lg'}>Sign Up</Button>
-        </div>
+       
+        <Link to={'/login'} className="py-3 px-10 rounded-lg font-semibold  bg-black text-white">Get Start</Link>
       </div>
     </header>
   );
-}
+};
 
-export default Navbar
+export default Navbar;

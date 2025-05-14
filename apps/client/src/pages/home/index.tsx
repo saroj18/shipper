@@ -4,17 +4,9 @@ import { Database, Server, Code, Globe, GitBranch, Zap } from "lucide-react";
 const Home = () => {
   return (
     <div className="flex-1">
-      <section className="relative overflow-hidden bg-black py-24 md:py-32">
-        <div className="absolute inset-0 z-0 opacity-20">
-          <div className="h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#61DAFB40,transparent)]"></div>
-        <div className="absolute -left-24 top-[40%] h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle_at_center,#00ED6440,transparent_70%)] blur-xl"></div>
-        <div className="absolute -right-24 top-[60%] h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle_at_center,#33993340,transparent_70%)] blur-xl"></div>
-
+      <section className="relative overflow-hidden  py-24 md:py-32">
+  
         <div className="container relative z-10 mx-auto px-4 text-center">
-          
           <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
             Deploy your{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400">
@@ -113,8 +105,6 @@ deploy({
           </div>
         </div>
       </section>
-
-     
 
       <section className="bg-black py-24">
         <div className="container mx-auto px-4">
