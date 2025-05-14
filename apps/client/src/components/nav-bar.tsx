@@ -3,11 +3,11 @@ import Logo from "./logo";
 
 const Navbar = () => {
   return (
-    <header className="sticky top-0 z-40 w-full bg-white">
+    <header className="sticky top-0 z-40 w-full bg-white text-black">
       <div className="container flex h-20 mx-auto items-center justify-between">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-10">
           <Logo />
-          <nav className="hidden md:flex gap-10">
+          <nav className="hidden md:flex gap-16">
             <Link
               to="#"
               className="text-lg font-black text-muted-background transition-colors hover:text-foreground"
