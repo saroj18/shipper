@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
 
 const Header = () => {
   return (
@@ -14,7 +15,9 @@ const Header = () => {
           Live
         </Badge>
       </div>
-      <Button>Go to Dashboard</Button>
+      <Link to={'/project-dashboard'}>
+        <Button>Go to Dashboard</Button>
+      </Link>
     </div>
   );
 };

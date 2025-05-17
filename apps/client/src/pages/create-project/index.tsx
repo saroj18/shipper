@@ -5,16 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import BuildSection from "./components/build-section";
 import EnvSection from "./components/env.section";
 import BuildLogs from "../build-logs";
+import TechStackSelector from "./components/tech-stack-selector";
 
 const CreateProject = () => {
   const [projectName, setProjectName] = useState("blog-crud");
@@ -61,21 +56,7 @@ const CreateProject = () => {
 
             <Separator className="bg-[#333]" />
 
-            <div className="space-y-2">
-              <Label htmlFor="framework" className="text-gray-400 text-sm">
-                Framework Preset
-              </Label>
-              <Select>
-                <SelectTrigger className=" border-[#333] focus:ring-0 focus:border-gray-500">
-                  <SelectValue placeholder="Other" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] text-white border-[#333]">
-                  <SelectItem value="other">Other</SelectItem>
-                  <SelectItem value="next">Next.js</SelectItem>
-                  <SelectItem value="react">React</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <TechStackSelector/>
 
             <div className="space-y-2">
               <Label htmlFor="root-dir" className="text-gray-400 text-sm">
