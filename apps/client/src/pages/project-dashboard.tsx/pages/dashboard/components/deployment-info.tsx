@@ -1,0 +1,152 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  CheckCircle,
+  Clock,
+  Copy,
+  ExternalLink,
+  GitBranch,
+  GitCommit,
+} from "lucide-react";
+
+type DeploymentInfoProps = {
+  deploymentUrl: string;
+  domain: string;
+  createdAt: string;
+  createdBy: string;
+  branch: string;
+  commitId: string;
+  commitMessage: string;
+  status: "ready" | "building" | "error";
+};
+
+const DeploymentInfo = ({
+  deploymentUrl,
+  domain,
+  createdAt,
+  createdBy,
+  branch,
+  commitId,
+  commitMessage,
+}: DeploymentInfoProps) => {
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+  return (
+    <div className="lg:col-span-2 bg-zinc-900 rounded-lg border border-zinc-800 p-6 space-y-6">
+      <div>
+        <h3 className="text-sm font-medium text-zinc-400 mb-2">Deployment</h3>
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-zinc-300 break-all">{deploymentUrl}</p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => copyToClipboard(deploymentUrl)}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-zinc-900 border-zinc-700">
+                <p>Copy URL</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium text-zinc-400 mb-2">Domains</h3>
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-zinc-300">{domain}</p>
+          <Badge className="bg-zinc-800 text-zinc-400 hover:bg-zinc-700">
+            +2
+          </Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => copyToClipboard(domain)}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-zinc-900 border-zinc-700">
+                <p>Copy domain</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <ExternalLink className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 className="text-sm font-medium text-zinc-400 mb-2">Status</h3>
+          <div className="flex items-center gap-2">
+            {status === "ready" && (
+              <>
+                <CheckCircle className="h-4 w-4 text-emerald-500" />
+                <span className="text-sm">Ready</span>
+              </>
+            )}
+            {status === "building" && (
+              <>
+                <div className="h-4 w-4 rounded-full border-2 border-t-transparent border-blue-500 animate-spin"></div>
+                <span className="text-sm">Building</span>
+              </>
+            )}
+            {status === "error" && (
+              <>
+                <div className="h-4 w-4 rounded-full bg-red-500"></div>
+                <span className="text-sm">Error</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-medium text-zinc-400 mb-2">Created</h3>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-zinc-500" />
+            <span className="text-sm">
+              {createdAt} by {createdBy}
+            </span>
+            <div className="h-6 w-6 rounded-full bg-zinc-700 flex items-center justify-center text-xs">
+              {createdBy.charAt(0).toUpperCase()}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium text-zinc-400 mb-2">Source</h3>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <GitBranch className="h-4 w-4 text-zinc-500" />
+            <span className="text-sm">{branch}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <GitCommit className="h-4 w-4 text-zinc-500" />
+            <span className="text-sm text-zinc-400">{commitId}</span>
+            <span className="text-sm">{commitMessage}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DeploymentInfo;

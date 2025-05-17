@@ -61,7 +61,7 @@ const BuildLogs = () => {
         setActiveFilters={setActiveFilters}
       />
       <ScrollArea className="flex-1 overflow-y-scroll" ref={scrollRef}>
-        <div className="p-1">
+        <div className="px-8 py-2">
           {filteredLogs.length > 0 ? (
             filteredLogs.map((log) => (
               <div
