@@ -1,0 +1,33 @@
+{
+  "name": "build-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\"",
+    "prod": "nodemon dist/server.js",
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.18",
+    "@types/dotenv": "^6.1.1",
+    "@types/node": "^22.15.18",
+    "@types/passport": "^1.0.17",
+    "passport-github-oauth20": "^1.0.4",
+    "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "@repo/utils": "*",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "passport": "^0.7.0",
+    "sequelize": "^6.37.7"
+  }
+}

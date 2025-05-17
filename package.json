@@ -9,6 +9,7 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@types/express": "^5.0.2",
     "prettier": "^3.5.3",
     "turbo": "^2.5.3",
     "typescript": "5.8.2"
@@ -18,7 +19,11 @@
   },
   "packageManager": "npm@11.2.0",
   "workspaces": [
-    "apps/*",
+    "apps/**",
+    "apps/*/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
