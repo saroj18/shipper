@@ -12,6 +12,7 @@ import Deployment from "./pages/project-dashboard.tsx/pages/deployment/index.tsx
 import SettingLayout from "./pages/project-dashboard.tsx/pages/settings/settingLayout.tsx";
 import ProjectSettings from "./pages/project-dashboard.tsx/pages/settings/pages/general/index.tsx";
 import ScriptSettings from "./pages/project-dashboard.tsx/pages/settings/pages/script-setting/index.tsx";
+import EnvironmentVariables from "./pages/project-dashboard.tsx/pages/settings/pages/environment-variable/index.tsx";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
               {
                 path: "build-script",
                 element: <ScriptSettings />,
+              },
+              {
+                path: "environment-variables",
+                element: <EnvironmentVariables />,
               },
             ],
           },
