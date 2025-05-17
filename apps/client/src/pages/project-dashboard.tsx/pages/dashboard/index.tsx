@@ -10,7 +10,7 @@ import {
 import Header from "./components/header";
 import LogSection from "./components/log-section";
 import DeploymentInfo from "./components/deployment-info";
-import Navbar from "./components/navbar";
+import Navbar from "../../components/navbar";
 
 interface DeploymentDashboardProps {
   projectName: string;

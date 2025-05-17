@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import Navbar from "./pages/dashboard/components/navbar";
+import Navbar from "./components/navbar";
 
 const ProjectDashboardLayout = () => {
   return (

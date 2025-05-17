@@ -9,6 +9,9 @@ import BuildLogs from "./pages/build-logs";
 import ProjectDashboard from "./pages/project-dashboard.tsx/pages/dashboard/index.tsx";
 import ProjectDashboardLayout from "./pages/project-dashboard.tsx/project-dashboard-layout.tsx";
 import Deployment from "./pages/project-dashboard.tsx/pages/deployment/index.tsx";
+import SettingLayout from "./pages/project-dashboard.tsx/pages/settings/settingLayout.tsx";
+import ProjectSettings from "./pages/project-dashboard.tsx/pages/settings/pages/general/index.tsx";
+import ScriptSettings from "./pages/project-dashboard.tsx/pages/settings/pages/script-setting/index.tsx";
 
 const router = createBrowserRouter([
   {
@@ -59,6 +62,26 @@ const router = createBrowserRouter([
           {
             path: "deployment",
             element: <Deployment />,
+          },
+          {
+            path: "settings",
+            element: <SettingLayout />,
+            children: [
+              {
+                path: "",
+                element: (
+                  <ProjectSettings
+                    projectName="blog-crud-htg3"
+                    projectId="c85bde44"
+                    lastUpdated="6h ago"
+                  />
+                ),
+              },
+              {
+                path: "build-script",
+                element: <ScriptSettings />,
+              },
+            ],
           },
         ],
       },
