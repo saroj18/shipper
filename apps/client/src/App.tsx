@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import Main from "./pages/main";
 import AddProject from "./pages/add-project";
 import CreateProject from "./pages/create-project";
+import BuildLogs from "./pages/build-logs";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "create-project",
         element: <CreateProject />,
+      },
+      {
+        path: "build-logs",
+        element: <BuildLogs />,
       },
     ],
   },
