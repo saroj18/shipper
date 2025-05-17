@@ -19,15 +19,22 @@
     "@types/dotenv": "^6.1.1",
     "@types/node": "^22.15.18",
     "@types/passport": "^1.0.17",
+    "@types/passport-github": "^1.1.12",
     "passport-github-oauth20": "^1.0.4",
     "ts-node": "^10.9.2"
   },
   "dependencies": {
     "@repo/utils": "*",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
+    "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.1",
     "passport": "^0.7.0",
+    "passport-github": "^1.1.0",
     "sequelize": "^6.37.7"
   }
 }

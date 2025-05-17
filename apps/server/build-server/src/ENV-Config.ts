@@ -5,6 +5,10 @@ type ENVTYPE = {
   DB_NAME: string;
   PORT: string;
   ORIGIN: string;
+  JWT_SECRET: string;
+  GITHUB_CLIENT_ID: string;
+  GITHUB_CLIENT_SECRET: string;
+  GITHUB_CALLBACK_URL: string;
 };
 
 export const ENV: ENVTYPE = {
@@ -14,4 +18,8 @@ export const ENV: ENVTYPE = {
   DB_NAME: process.env.DB_NAME as string,
   PORT: process.env.PORT as string,
   ORIGIN: process.env.ORIGIN as string,
+  JWT_SECRET: process.env.JWT_SECRET as string,
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID as string,
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET as string,
+  GITHUB_CALLBACK_URL: process.env.GITHUB_CALLBACK_URL as string,
 };

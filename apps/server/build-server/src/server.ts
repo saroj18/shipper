@@ -1,7 +1,7 @@
-import { server } from "./app";
+import { server } from "./app.js";
 import dotenv from "dotenv";
-import { connectDB } from "./dbConnect/dbConnection";
-import { ENV } from "./ENV-Config";
+import { connectDB } from "./dbConnect/dbConnection.js";
+import { ENV } from "./ENV-Config.js";
 dotenv.config();
 
 const dbConfig = {
@@ -14,10 +14,7 @@ const dbConfig = {
 connectDB(dbConfig)
   .then(() => {
     server.listen(ENV.PORT, () => {
-      console.log(
-        "database and server started successfully at port",
-        ENV.PORT
-      );
+      console.log("database and server started successfully at port", ENV.PORT);
     });
   })
   .catch((err: any) => {

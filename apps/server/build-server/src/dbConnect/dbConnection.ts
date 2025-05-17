@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize";
+import { getSequelizeInstance } from "../models/index.js";
 
 type DBConfig = {
   db_host: string;
@@ -26,6 +27,7 @@ export const connectDB = async ({
     });
     await sequelize.authenticate();
     await sequelize.sync();
+    await getSequelizeInstance(sequelize);
     return sequelize;
   } catch (error) {
     throw error;
