@@ -22,7 +22,6 @@ const Sidebar = ({ activeItem = "General" }: SidebarProps) => {
   const sidebarItems: SidebarItem[] = [
     { name: "General", href: "" },
     { name: "Build and Deployment", href: "build-script" },
-    { name: "Domains", href: "domains" },
     { name: "Environment Variables", href: "environment-variables" },
   ];
 

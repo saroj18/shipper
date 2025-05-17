@@ -13,6 +13,7 @@ import SettingLayout from "./pages/project-dashboard.tsx/pages/settings/settingL
 import ProjectSettings from "./pages/project-dashboard.tsx/pages/settings/pages/general/index.tsx";
 import ScriptSettings from "./pages/project-dashboard.tsx/pages/settings/pages/script-setting/index.tsx";
 import EnvironmentVariables from "./pages/project-dashboard.tsx/pages/settings/pages/environment-variable/index.tsx";
+import DeploymentLogs from "./pages/project-dashboard.tsx/pages/logs/index.tsx";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
             element: <Deployment />,
           },
           {
+            path: "logs",
+            element: <DeploymentLogs />,
+          },
+          {
             path: "settings",
             element: <SettingLayout />,
             children: [
@@ -82,6 +87,7 @@ const router = createBrowserRouter([
                 path: "build-script",
                 element: <ScriptSettings />,
               },
+
               {
                 path: "environment-variables",
                 element: <EnvironmentVariables />,
