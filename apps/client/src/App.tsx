@@ -15,11 +15,13 @@ import EnvironmentVariables from "./pages/project-dashboard.tsx/pages/settings/p
 import DeploymentLogs from "./pages/project-dashboard.tsx/pages/logs/index.tsx";
 import ProtectedRoute from "./components/protected-route.tsx";
 import PublicRoute from "./components/public-route.tsx";
+import Loader from "./components/loader.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
+    loader: () => <Loader />,
     children: [
       {
         path: "/",

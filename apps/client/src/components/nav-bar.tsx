@@ -3,6 +3,7 @@ import Logo from "./logo";
 import { Button } from "./ui/button";
 import { logoutUser } from "@/api/user";
 import { useUser } from "./context";
+import { LogOut, LogOutIcon } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const Navbar = () => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-x-8">
           <Link
             to={"/addproject"}
             className="py-3 px-10 rounded-lg font-semibold  bg-black text-white"
@@ -60,9 +61,7 @@ const Navbar = () => {
             Get Start
           </Link>
           {user && (
-            <Button onClick={logOutHandler} variant={"destructive"}>
-              Log Out
-            </Button>
+            <LogOutIcon size={30} strokeWidth={4} className="cursor-pointer text-red-500 " onClick={logOutHandler} />
           )}
         </div>
       </div>
