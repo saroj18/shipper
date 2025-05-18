@@ -13,7 +13,8 @@ export class UserSchema extends Model {
   declare id: number;
   declare username: string;
   declare email: string;
-  declare password: string;
+  declare profile_url: string;
+  declare github_token: string;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 
@@ -32,14 +33,6 @@ export class UserSchema extends Model {
     const verifyToken = jwt.verify(token, ENV.JWT_SECRET) as JWTPayload;
     return verifyToken;
   }
-
-  public static async hashPassword(password: string) {
-    return await bcrypt.hash(password, 10);
-  }
-
-  public async comparePassword(password: string) {
-    return await bcrypt.compare(password, this.password);
-  }
 }
 
 export async function UserModel(sequelizeInstance: Sequelize) {
@@ -53,12 +46,19 @@ export async function UserModel(sequelizeInstance: Sequelize) {
       username: {
         type: DataTypes.STRING(128),
         allowNull: false,
+        unique: true,
       },
       email: {
         type: DataTypes.STRING(128),
         allowNull: false,
+        unique: true,
       },
-      password: {
+      github_token: {
+        type: DataTypes.STRING(128),
+        allowNull: false,
+      },
+
+      profile_url: {
         type: DataTypes.STRING(128),
         allowNull: false,
       },
@@ -78,11 +78,6 @@ export async function UserModel(sequelizeInstance: Sequelize) {
     await UserSchema.sync({ alter: true });
   }
   const user = UserSchema;
-  UserSchema.addHook("afterUpdate", function (user) {
-    if (user.changed("password" as keyof Model<UserSchema>)) {
-      console.log("Password has been changed");
-    }
-  });
 
   return user;
 }

@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 type ENVTYPE = {
   DB_HOST: string;
   DB_USER: string;
@@ -10,7 +13,6 @@ type ENVTYPE = {
   GITHUB_CLIENT_SECRET: string;
   GITHUB_CALLBACK_URL: string;
 };
-
 export const ENV: ENVTYPE = {
   DB_HOST: process.env.DB_HOST as string,
   DB_USER: process.env.DB_USER as string,

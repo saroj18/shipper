@@ -14,6 +14,7 @@ export const connectDB = async ({
   db_name,
 }: DBConfig) => {
   try {
+    console.log('dn_name', db_name);
     const sequelize = new Sequelize(db_name, db_user, db_password, {
       host: db_host,
       port: 3306,

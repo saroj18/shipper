@@ -1,6 +1,9 @@
 import Router from "express";
 import passport from "passport";
-import { loginWithGitHub } from "../controller/user-controller.js";
+import {
+  loginWithGitHub,
+  logoutHandler,
+} from "../controller/user-controller.js";
 
 export const userRouter = Router();
 
@@ -15,3 +18,4 @@ userRouter.route("/github/callback").get(
   }),
   loginWithGitHub
 );
+userRouter.route("/logout").get(logoutHandler);

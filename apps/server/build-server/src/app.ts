@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import GithubStrategy from "passport-github";
 import passport from "passport";
 import { userRouter } from "./route/user-route.js";
+import { userGithubRouter } from "./route/user-github-route.js";
 dotenv.config();
 
 export const app = express();
@@ -31,14 +32,14 @@ passport.use(
       passReqToCallback: true,
     },
     function (request, accessToken, refreshToken, profile, done) {
-      console.log("accessToken", accessToken);
-      return done(null, profile);
+      return done(null, { ...profile, accessToken });
     }
   )
 );
 
 app.use(cookieParser());
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/github", userGithubRouter);
 app.use((err: ApiError, req: Request, resp: Response, next: NextFunction) => {
   globalErrorHandler(err, resp);
 });
