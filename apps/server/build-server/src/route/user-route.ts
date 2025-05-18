@@ -3,6 +3,7 @@ import passport from "passport";
 import {
   loginWithGitHub,
   logoutHandler,
+  userInfoHandler,
 } from "../controller/user-controller.js";
 import { Auth } from "../middleware/auth.js";
 
@@ -19,4 +20,5 @@ userRouter.route("/github/callback").get(
   }),
   loginWithGitHub
 );
-userRouter.route("/logout").get(Auth,logoutHandler);
+userRouter.route("/").get(Auth, userInfoHandler);
+userRouter.route("/logout").get(Auth, logoutHandler);

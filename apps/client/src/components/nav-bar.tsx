@@ -1,7 +1,18 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Logo from "./logo";
+import { Button } from "./ui/button";
+import { logoutUser } from "@/api/user";
+import { useUser } from "./context";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const { user, setUser } = useUser();
+
+  const logOutHandler = async () => {
+    await logoutUser();
+    setUser(undefined);
+    navigate("/");
+  };
   return (
     <header className="sticky top-0 z-40 w-full bg-white text-black">
       <div className="container flex h-20 mx-auto items-center justify-between">
@@ -40,8 +51,20 @@ const Navbar = () => {
             </Link>
           </nav>
         </div>
-       
-        <Link to={'/login'} className="py-3 px-10 rounded-lg font-semibold  bg-black text-white">Get Start</Link>
+
+        <div className="flex items-center gap-4">
+          <Link
+            to={"/addproject"}
+            className="py-3 px-10 rounded-lg font-semibold  bg-black text-white"
+          >
+            Get Start
+          </Link>
+          {user && (
+            <Button onClick={logOutHandler} variant={"destructive"}>
+              Log Out
+            </Button>
+          )}
+        </div>
       </div>
     </header>
   );

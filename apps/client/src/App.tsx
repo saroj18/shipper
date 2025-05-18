@@ -5,7 +5,6 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import Main from "./pages/main";
 import AddProject from "./pages/add-project";
 import CreateProject from "./pages/create-project";
-import BuildLogs from "./pages/build-logs";
 import ProjectDashboard from "./pages/project-dashboard.tsx/pages/dashboard/index.tsx";
 import ProjectDashboardLayout from "./pages/project-dashboard.tsx/project-dashboard-layout.tsx";
 import Deployment from "./pages/project-dashboard.tsx/pages/deployment/index.tsx";
@@ -14,6 +13,8 @@ import ProjectSettings from "./pages/project-dashboard.tsx/pages/settings/pages/
 import ScriptSettings from "./pages/project-dashboard.tsx/pages/settings/pages/script-setting/index.tsx";
 import EnvironmentVariables from "./pages/project-dashboard.tsx/pages/settings/pages/environment-variable/index.tsx";
 import DeploymentLogs from "./pages/project-dashboard.tsx/pages/logs/index.tsx";
+import ProtectedRoute from "./components/protected-route.tsx";
+import PublicRoute from "./components/public-route.tsx";
 
 const router = createBrowserRouter([
   {
@@ -26,23 +27,43 @@ const router = createBrowserRouter([
       },
       {
         path: "login",
-        element: <Login />,
+        element: (
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        ),
       },
       {
         path: "main",
-        element: <Main />,
+        element: (
+          <ProtectedRoute>
+            <Main />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "addproject",
-        element: <AddProject />,
+        element: (
+          <ProtectedRoute>
+            <AddProject />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "create-project/:repoName",
-        element: <CreateProject />,
+        element: (
+          <ProtectedRoute>
+            <CreateProject />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "project-dashboard",
-        element: <ProjectDashboardLayout />,
+        element: (
+          <ProtectedRoute>
+            <ProjectDashboardLayout />
+          </ProtectedRoute>
+        ),
         children: [
           {
             path: "",

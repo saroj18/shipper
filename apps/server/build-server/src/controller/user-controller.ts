@@ -45,7 +45,7 @@ export const loginWithGitHub = asyncHandler(async (req, resp) => {
     throw new ApiError("Unable to save user on DB", 500);
   }
 
-  const { accessToken} = await User.generateToken({
+  const { accessToken } = await User.generateToken({
     id: saveOnDb.id,
     username: saveOnDb.username,
     email: saveOnDb.email,
@@ -70,4 +70,15 @@ export const logoutHandler = asyncHandler(async (req, resp) => {
   resp
     .status(200)
     .json(new ApiResponse("User logged out successfully", 200, {}));
+});
+
+export const userInfoHandler = asyncHandler(async (req, resp) => {
+  const userId = (req as any).user;
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new ApiError("User not found", 404);
+  }
+  resp
+    .status(200)
+    .json(new ApiResponse("User info fetched successfully", 200, user));
 });

@@ -18,3 +18,10 @@ export type AllRepoType = {
 export type SingleRepoType = {
   data: RepoType;
 };
+
+
+export type UserType={
+    username:string;
+    id:string;
+    email:string;
+}
