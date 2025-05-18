@@ -4,6 +4,7 @@ import {
   loginWithGitHub,
   logoutHandler,
 } from "../controller/user-controller.js";
+import { Auth } from "../middleware/auth.js";
 
 export const userRouter = Router();
 
@@ -18,4 +19,4 @@ userRouter.route("/github/callback").get(
   }),
   loginWithGitHub
 );
-userRouter.route("/logout").get(logoutHandler);
+userRouter.route("/logout").get(Auth,logoutHandler);
