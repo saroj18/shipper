@@ -1,16 +1,12 @@
 import { ApiError, ApiResponse, asyncHandler } from "@repo/utils";
-import { User } from "../models";
+import { User } from "../models/index.js";
 import axios from "axios";
 
 export const getAllGithubRepos = asyncHandler(async (req, resp) => {
-  const userId = (req as any).user.id;
+  const userId = (req as any).user;
 
-  const user = await User.findOne({
-    where: {
-      id: userId,
-    },
-  });
-
+  console.log("user", userId);
+  const user = await User.findByPk(userId);
   if (!user) {
     throw new ApiError("User not found", 404);
   }

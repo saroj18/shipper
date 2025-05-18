@@ -12,6 +12,7 @@ type ENVTYPE = {
   GITHUB_CLIENT_ID: string;
   GITHUB_CLIENT_SECRET: string;
   GITHUB_CALLBACK_URL: string;
+  REDIRECT_AFTER_GITHUB_LOGIN: string;
 };
 export const ENV: ENVTYPE = {
   DB_HOST: process.env.DB_HOST as string,
@@ -24,4 +25,6 @@ export const ENV: ENVTYPE = {
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID as string,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET as string,
   GITHUB_CALLBACK_URL: process.env.GITHUB_CALLBACK_URL as string,
+  REDIRECT_AFTER_GITHUB_LOGIN: process.env
+    .REDIRECT_AFTER_GITHUB_LOGIN as string,
 };

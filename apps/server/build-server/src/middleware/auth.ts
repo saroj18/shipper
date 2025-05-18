@@ -1,7 +1,8 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { CookieOptions, NextFunction, Request, Response } from "express";
 import { ApiError } from "@repo/utils";
-import { User } from "../models";
+import { User } from "../models/index.js";
+import { ENV } from "../ENV-Config.js";
 
 interface TokenPayload extends JwtPayload {
   id: string;
@@ -23,7 +24,7 @@ export const Auth = async (
     }
     const decodAccessToken = jwt.verify(
       accessToken,
-      process.env.ACCESS_TOKEN_SECRETE as string
+      ENV.JWT_SECRET
     ) as TokenPayload;
 
     if (!decodAccessToken) {
@@ -31,9 +32,7 @@ export const Auth = async (
       throw new Error("Invalid token");
     }
 
-    const findUser = await User.findOne({
-      where: { _id: decodAccessToken.id },
-    });
+    const findUser = await User.findByPk(decodAccessToken.id);
 
     if (!findUser) {
       resp.status(404);
@@ -44,7 +43,7 @@ export const Auth = async (
     next();
   } catch (error: any) {
     resp
-      .status(error.statusCode)
+      .status(+error.statusCode || 500)
       .json({ success: false, error: error.message });
   }
 };

@@ -1,6 +1,5 @@
 import { DataTypes, Model, Sequelize } from "sequelize";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import { ENV } from "../ENV-Config.js";
 
 interface JWTPayload extends JwtPayload {

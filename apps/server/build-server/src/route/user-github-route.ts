@@ -1,6 +1,6 @@
 import Router from 'express'
-import { getAllGithubRepos } from '../controller/user-github-controller'
-import { Auth } from '../middleware/auth'
+import { getAllGithubRepos } from '../controller/user-github-controller.js'
+import { Auth } from '../middleware/auth.js'
 
 export const userGithubRouter=Router()
 

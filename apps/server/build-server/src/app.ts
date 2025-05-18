@@ -9,6 +9,7 @@ import GithubStrategy from "passport-github";
 import passport from "passport";
 import { userRouter } from "./route/user-route.js";
 import { userGithubRouter } from "./route/user-github-route.js";
+import { ENV } from "./ENV-Config.js";
 dotenv.config();
 
 export const app = express();
@@ -18,7 +19,7 @@ export const server = http.createServer(app);
 app.use(express.json());
 app.use(
   cors({
-    origin: process.env.ORIGIN,
+    origin: ENV.ORIGIN,
     credentials: true,
   })
 );

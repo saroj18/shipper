@@ -1,5 +1,6 @@
 import { ApiError, ApiResponse, asyncHandler } from "@repo/utils";
 import { User } from "../models/index.js";
+import { ENV } from "../ENV-Config.js";
 
 export const loginWithGitHub = asyncHandler(async (req, resp) => {
   const userInfo = (req as any).user;
@@ -15,28 +16,21 @@ export const loginWithGitHub = asyncHandler(async (req, resp) => {
       github_token: userInfo.accessToken,
     });
     await findUser.save();
+    console.log("userInfo", findUser.dataValues);
 
-    const { accessToken, refreshToken } = await User.generateToken({
-      id: findUser.id,
-      username: findUser.username,
-      email: findUser.email,
+    const { accessToken } = await User.generateToken({
+      id: findUser.dataValues.id,
+      username: findUser.dataValues.username,
+      email: findUser.dataValues.email,
     });
 
-    resp.cookie("access_token", accessToken, {
+    resp.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
     });
 
-    resp.cookie("refresh_token", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-    });
-
-    resp
-      .status(200)
-      .json(new ApiResponse("User logged in successfully", 200, userInfo));
+    resp.status(202).redirect(ENV.REDIRECT_AFTER_GITHUB_LOGIN);
     return;
   }
 
@@ -51,19 +45,23 @@ export const loginWithGitHub = asyncHandler(async (req, resp) => {
     throw new ApiError("Unable to save user on DB", 500);
   }
 
-  const { accessToken, refreshToken } = await User.generateToken({
+  const { accessToken} = await User.generateToken({
     id: saveOnDb.id,
     username: saveOnDb.username,
     email: saveOnDb.email,
   });
 
-  resp.cookie("access_token", accessToken, {
+  resp.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: true,
     sameSite: "none",
   });
 
-  resp.cookie("refresh_token", refreshToken, {
+  resp.status(202).redirect(ENV.REDIRECT_AFTER_GITHUB_LOGIN);
+});
+
+export const logoutHandler = asyncHandler(async (req, resp) => {
+  resp.clearCookie("accessToken", {
     httpOnly: true,
     secure: true,
     sameSite: "none",
@@ -71,20 +69,5 @@ export const loginWithGitHub = asyncHandler(async (req, resp) => {
 
   resp
     .status(200)
-    .json(new ApiResponse("User logged in successfully", 200, userInfo));
-});
-
-
-export const logoutHandler = asyncHandler(async (req, resp) => {
-  resp.clearCookie("access_token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-  });
-  resp.clearCookie("refresh_token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-  });
-  resp.status(200).json(new ApiResponse("User logged out successfully", 200,{}));
+    .json(new ApiResponse("User logged out successfully", 200, {}));
 });
