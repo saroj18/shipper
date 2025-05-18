@@ -1,0 +1,20 @@
+export type RepoType = {
+  id: string;
+  name: string;
+  created_at: string;
+  createdBy: string;
+  branch: string;
+  commitId: string;
+  owner: any;
+  permissions: {
+    admin: boolean;
+  };
+  private: boolean;
+};
+
+export type AllRepoType = {
+  data: RepoType[];
+};
+export type SingleRepoType = {
+  data: RepoType;
+};

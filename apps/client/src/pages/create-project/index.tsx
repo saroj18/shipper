@@ -10,9 +10,13 @@ import BuildSection from "./components/build-section";
 import EnvSection from "./components/env.section";
 import BuildLogs from "../build-logs";
 import TechStackSelector from "./components/tech-stack-selector";
+import { useParams } from "react-router";
+import { userGithubSingleRepo } from "@/api/github";
 
 const CreateProject = () => {
-  const [projectName, setProjectName] = useState("blog-crud");
+  const repoName = useParams().repoName as string;
+  const { data: repo, isLoading } = userGithubSingleRepo(repoName);
+  const [projectName, setProjectName] = useState(repoName);
   const [rootDirectory, setRootDirectory] = useState("./");
 
   return (
@@ -30,9 +34,10 @@ const CreateProject = () => {
                 </p>
                 <div className="flex items-center gap-2">
                   <GithubIcon className="text-white" />
-                  <span>saroj18/blog_crud</span>
+                  <span>{repo?.data.name}</span>
                   <span className="ml-2 text-sm flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full"></div> main
+                    <div className="w-2 h-2 rounded-full"></div>{" "}
+                    {repo?.data.branch}
                   </span>
                 </div>
               </CardContent>
@@ -56,7 +61,7 @@ const CreateProject = () => {
 
             <Separator className="bg-[#333]" />
 
-            <TechStackSelector/>
+            <TechStackSelector />
 
             <div className="space-y-2">
               <Label htmlFor="root-dir" className="text-gray-400 text-sm">

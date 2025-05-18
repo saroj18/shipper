@@ -1,11 +1,11 @@
 import { Input } from "@/components/ui/input";
-import Card, { type RepoType } from "./components/card";
-import { userGithubRepos } from "@/api/github";
+import Card from "./components/card";
+import { userGithubAllRepos } from "@/api/github";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
 const AddProject = () => {
-  const { data: repos, isLoading } = userGithubRepos();
+  const { data: repos, isLoading } = userGithubAllRepos();
   console.log(repos);
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,8 +33,10 @@ const AddProject = () => {
             <Skeleton className="w-full h-[80px] rounded-md bg-neutral-700" />
           </div>
         ) : (
-          (repos?.data as RepoType[])?.map((repo) => {
-            return <Card key={repo.id} repo={repo} />;
+          repos?.data ?.map((repo) => {
+            return (
+              repo?.permissions?.admin && <Card key={repo.id} repo={repo} />
+            );
           })
         )}
       </div>

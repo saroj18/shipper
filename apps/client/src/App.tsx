@@ -37,7 +37,7 @@ const router = createBrowserRouter([
         element: <AddProject />,
       },
       {
-        path: "create-project",
+        path: "create-project/:repoName",
         element: <CreateProject />,
       },
       {
