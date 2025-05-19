@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GithubIcon } from "lucide-react";
+import { GitBranch, GithubIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,12 +12,58 @@ import BuildLogs from "../build-logs";
 import TechStackSelector from "./components/tech-stack-selector";
 import { useParams } from "react-router";
 import { userGithubSingleRepo } from "@/api/github";
+import { useMutation } from "@tanstack/react-query";
+import { deployProject } from "@/api/project";
+
+export type ProjectInfoType = {
+  projectName: string;
+  configFileLocation: string;
+  techStack: string;
+  buildCommand: string;
+  startCommand: string;
+  installCommand: string;
+  outputDirectory: string;
+  envVariables: { key: string; value: string }[];
+  projectLink: string;
+};
 
 const CreateProject = () => {
+  const { mutate } = useMutation({
+    mutationFn: deployProject,
+    onSuccess: (data) => {
+      console.log("User created:", data);
+    },
+    onError: (error) => {
+      console.error("Error creating user:", error);
+    },
+  });
+
   const repoName = useParams().repoName as string;
   const { data: repo, isLoading } = userGithubSingleRepo(repoName);
-  const [projectName, setProjectName] = useState(repoName);
-  const [rootDirectory, setRootDirectory] = useState("./");
+  const [projectInfo, setProjectInfo] = useState<ProjectInfoType>({
+    projectName: repoName,
+    configFileLocation: "./",
+    techStack: "",
+    buildCommand: "",
+    startCommand: "",
+    installCommand: "",
+    outputDirectory: "",
+    envVariables: [],
+    projectLink:repo?.data.html_url as string,
+  });
+
+  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProjectInfo((prv) => {
+      return {
+        ...prv,
+        [e.target.name]: e.target.value,
+      };
+    });
+  };
+
+  const clickHandler = () => {
+    mutate(projectInfo);
+  };
 
   return (
     <>
@@ -28,16 +74,16 @@ const CreateProject = () => {
           </CardHeader>
           <CardContent className="space-y-6 text-white ">
             <Card className="bg-[#1a1a1a] border-[#333]">
-              <CardContent className="p-4 text-white">
+              <CardContent className=" text-white">
                 <p className=" text-sm mb-2 text-gray-400">
                   Importing from GitHub
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-x-2">
                   <GithubIcon className="text-white" />
                   <span>{repo?.data.name}</span>
                   <span className="ml-2 text-sm flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full"></div>{" "}
-                    {repo?.data.branch}
+                    <GitBranch className="text-neutral-400" size={20} />
+                    {(repo?.data as any)?.default_branch}
                   </span>
                 </div>
               </CardContent>
@@ -53,39 +99,46 @@ const CreateProject = () => {
               </Label>
               <Input
                 id="project-name"
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
+                name="projectName"
+                value={projectInfo.projectName}
+                onChange={changeHandler}
                 className="bg-[#1a1a1a] h-12 border-[#333] focus:border-gray-500 focus:ring-0"
               />
             </div>
 
             <Separator className="bg-[#333]" />
 
-            <TechStackSelector />
+            <TechStackSelector
+              projectInfo={projectInfo}
+              setProjectInfo={setProjectInfo}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="root-dir" className="text-gray-400 text-sm">
-                Root Directory
+                Config File Location
               </Label>
               <div className="flex gap-2">
                 <Input
                   id="root-dir"
-                  value={rootDirectory}
-                  onChange={(e) => setRootDirectory(e.target.value)}
+                  name="configFileLocation"
+                  value={projectInfo.configFileLocation}
+                  onChange={changeHandler}
                   className="bg-[#1a1a1a] h-12 border-[#333] focus:border-gray-500 focus:ring-0"
                 />
-                <Button
-                  variant="outline"
-                  size={"lg"}
-                  className="bg-[#1a1a1a] h-12 border-[#333] hover:bg-[#222] hover:text-white"
-                >
-                  Edit
-                </Button>
               </div>
             </div>
-            <BuildSection />
-            <EnvSection />
-            <Button className="w-full bg-white text-black hover:bg-gray-200">
+            <BuildSection
+              projectInfo={projectInfo}
+              setProjectInfo={setProjectInfo}
+            />
+            <EnvSection
+              projectInfo={projectInfo}
+              setProjectInfo={setProjectInfo}
+            />
+            <Button
+              onClick={clickHandler}
+              className="w-full bg-white text-black hover:bg-gray-200"
+            >
               Deploy
             </Button>
           </CardContent>

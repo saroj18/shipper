@@ -15,8 +15,14 @@ import {
 } from "@/components/ui/tooltip";
 import { ChevronRight, Info } from "lucide-react";
 import { useState } from "react";
+import type { ProjectInfoType } from "..";
 
-const BuildSection = () => {
+type BuildSectionType = {
+  projectInfo: ProjectInfoType;
+  setProjectInfo: React.Dispatch<React.SetStateAction<ProjectInfoType>>;
+};
+
+const BuildSection = ({ projectInfo, setProjectInfo }: BuildSectionType) => {
   const [buildEnabled, setBuildEnabled] = useState(true);
   const [outputEnabled, setOutputEnabled] = useState(true);
   const [installEnabled, setInstallEnabled] = useState(true);
@@ -24,6 +30,13 @@ const BuildSection = () => {
   const [buildCommand, setBuildCommand] = useState("");
   const [outputDirectory, setOutputDirectory] = useState("");
   const [installCommand, setInstallCommand] = useState("");
+
+  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProjectInfo((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   return (
     <Collapsible
@@ -62,8 +75,9 @@ const BuildSection = () => {
           <div className="flex items-center gap-2">
             <Input
               id="build-command"
-              value={buildCommand}
-              onChange={(e) => setBuildCommand(e.target.value)}
+              name="buildCommand"
+              value={projectInfo.buildCommand}
+              onChange={changeHandler}
               placeholder="`npm run vercel-build` or `npm run build`"
               className="bg-[#1a1a1a] border-[#333] focus:border-gray-500 focus:ring-0 text-gray-400"
             />
@@ -95,9 +109,44 @@ const BuildSection = () => {
           <div className="flex items-center gap-2">
             <Input
               id="output-dir"
-              value={outputDirectory}
-              onChange={(e) => setOutputDirectory(e.target.value)}
+              name="outputDirectory"
+              value={projectInfo.outputDirectory}
+              onChange={changeHandler}
               placeholder="`public` if it exists, or `.`"
+              className="bg-[#1a1a1a] border-[#333] focus:border-gray-500 focus:ring-0 text-gray-400"
+            />
+            <Switch
+              checked={outputEnabled}
+              onCheckedChange={setOutputEnabled}
+              className="data-[state=checked]:text-blue-500 data-[state=checked]:bg-blue-500 "
+            />
+          </div>
+        </div>
+
+        {/* Install Command */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-1">
+            <Label htmlFor="output-dir" className="text-gray-400 text-sm">
+              Install Command
+            </Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info size={14} className="text-gray-500" />
+                </TooltipTrigger>
+                <TooltipContent className="bg-[#222] border-[#333]">
+                  <p>Command to start your project</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <div className="flex items-center gap-2">
+            <Input
+              id="output-dir"
+              name="startCommand"
+              value={projectInfo.startCommand}
+              onChange={changeHandler}
+              placeholder="`npm start` or `npm run start`"
               className="bg-[#1a1a1a] border-[#333] focus:border-gray-500 focus:ring-0 text-gray-400"
             />
             <Switch
@@ -128,8 +177,9 @@ const BuildSection = () => {
           <div className="flex items-center gap-2">
             <Input
               id="install-command"
-              value={installCommand}
-              onChange={(e) => setInstallCommand(e.target.value)}
+              name="installCommand"
+              value={projectInfo.installCommand}
+              onChange={changeHandler}
               placeholder="`yarn install`, `pnpm install`, `npm install`, or `bun install`"
               className="bg-[#1a1a1a] border-[#333] focus:border-gray-500 focus:ring-0 text-gray-400"
             />

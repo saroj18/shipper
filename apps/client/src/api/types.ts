@@ -10,6 +10,7 @@ export type RepoType = {
     admin: boolean;
   };
   private: boolean;
+  html_url: string;
 };
 
 export type AllRepoType = {

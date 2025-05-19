@@ -12,12 +12,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ChevronRight, Info, Minus, Plus } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import type { ProjectInfoType } from "..";
 
-const EnvSection = () => {
+type EnvSectionProps = {
+  projectInfo: ProjectInfoType;
+  setProjectInfo: React.Dispatch<React.SetStateAction<ProjectInfoType>>;
+};
+
+const EnvSection = ({ projectInfo, setProjectInfo }: EnvSectionProps) => {
   const [envVarsOpen, setEnvVarsOpen] = useState(false);
   const [envVars, setEnvVars] = useState([
-    { key: "EXAMPLE_NAME", value: "I9JU23NF394R6HH" },
+    { key: "", value: "" },
   ]);
   const [envSettingsOpen, setEnvSettingsOpen] = useState(false);
 
@@ -40,6 +46,14 @@ const EnvSection = () => {
     newVars[index][field] = value;
     setEnvVars(newVars);
   };
+
+  useEffect(() => {
+    setProjectInfo((prev) => ({
+      ...prev,
+      envVariables: envVars,
+    }));
+  }, [envVars]);
+
   return (
     <Collapsible
       open={envSettingsOpen}

@@ -10,6 +10,7 @@ import passport from "passport";
 import { userRouter } from "./route/user-route.js";
 import { userGithubRouter } from "./route/user-github-route.js";
 import { ENV } from "./ENV-Config.js";
+import { projectRouter } from "./route/project-route.js";
 dotenv.config();
 
 export const app = express();
@@ -41,6 +42,7 @@ passport.use(
 app.use(cookieParser());
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/github", userGithubRouter);
+app.use("/api/v1/project", projectRouter);
 app.use((err: ApiError, req: Request, resp: Response, next: NextFunction) => {
   globalErrorHandler(err, resp);
 });
