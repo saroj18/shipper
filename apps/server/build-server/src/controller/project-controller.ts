@@ -25,7 +25,7 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
 
   (await queue).pushOnQueue(
     "project-config",
-    JSON.stringify({ ...req.body, projectLink: finalRepoUrl })
+    JSON.stringify({ ...req.body, projectLink: finalRepoUrl,username: user?.username })
   );
   resp
     .status(200)

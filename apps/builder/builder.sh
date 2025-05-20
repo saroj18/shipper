@@ -125,9 +125,9 @@ fi
 
 
 if [ -d "$OUTPUT_DIRECTORY" ]; then
-  aws s3 cp --recursive "$OUTPUT_DIRECTORY" s3://$S3_BUCKET_NAME/$USER_PROJECT_IDENTITY
+  aws s3 cp --recursive "$OUTPUT_DIRECTORY" s3://$S3_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
 elif [ -d "$CLIENT_OUTPUT_DIR" ]; then
-  aws s3 cp --recursive "$CLIENT_OUTPUT_DIR" s3://$S3_BUCKET_NAME/$USER_PROJECT_IDENTITY
+  aws s3 cp --recursive "$CLIENT_OUTPUT_DIR" s3://$S3_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
 else
   echo "❌ Build failed: output directory not found"
   exit 1
@@ -216,7 +216,7 @@ if [ -d "$OUTPUT_DIRECTORY" ]; then
     echo "❌ Failed to create zip file for $OUTPUT_DIRECTORY"
     exit 1
   }
-  aws s3 cp output.zip s3://$S3_BUCKET_NAME/$USER_PROJECT_IDENTITY/output.zip || {
+  aws s3 cp output.zip s3://$S3_BUCKET_NAME/$USER_PROJECT_IDENTITY/server.zip || {
     echo "❌ Failed to upload zip file to S3"
     exit 1
   }
@@ -227,7 +227,7 @@ elif [ -d "$SERVER_OUTPUT_DIR" ]; then
     echo "❌ Failed to create zip file for $SERVER_OUTPUT_DIR"
     exit 1
   }
-  aws s3 cp server_output.zip s3://$S3_BUCKET_NAME/$USER_PROJECT_IDENTITY/server_output.zip || {
+  aws s3 cp server_output.zip s3://$S3_BUCKET_NAME/$USER_PROJECT_IDENTITY/server.zip || {
     echo "❌ Failed to upload zip file to S3"
     exit 1
   }

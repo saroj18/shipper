@@ -4,7 +4,7 @@ export const runBuildContainer = async (projectInfo: any) => {
   const docker = new Docker();
   try {
     const container = await docker.createContainer({
-      Image: "730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v29",
+      Image: "730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:latest",
       Cmd: [""],
       Env: [
         `PROJECT_NAME=${projectInfo.projectName}`,
@@ -12,7 +12,7 @@ export const runBuildContainer = async (projectInfo: any) => {
         `AWS_ACCESS_KEY_ID=AKIA2UC27CTOAPK4C3PJ`,
         `AWS_SECRET_ACCESS_KEY=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`,
         `S3_BUCKET_NAME=saroj-learn`,
-        `USER_PROJECT_IDENTITY=${projectInfo.projectName + Math.random()}`,
+        `USER_PROJECT_IDENTITY=${projectInfo.username + "/" + projectInfo.projectName}`,
         `PROJECT_NAME=${projectInfo.projectName}`,
         `BUILD_COMMAND=${projectInfo.buildCommand}`,
         `START_COMMAND=${projectInfo.startCommand}`,
