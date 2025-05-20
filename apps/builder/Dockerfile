@@ -7,6 +7,7 @@ RUN apt-get upgrade -y
 RUN apt-get install -y nodejs
 
 RUN apt-get install git -y
+RUN apt-get install -y zip
 
 # Install AWS CLI
 RUN apt-get install -y unzip

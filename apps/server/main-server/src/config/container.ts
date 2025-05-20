@@ -4,7 +4,7 @@ export const runBuildContainer = async (projectInfo: any) => {
   const docker = new Docker();
   try {
     const container = await docker.createContainer({
-      Image: "730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v23",
+      Image: "730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v29",
       Cmd: [""],
       Env: [
         `PROJECT_NAME=${projectInfo.projectName}`,
