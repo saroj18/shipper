@@ -1,36 +1,11 @@
-import { Sequelize } from "sequelize";
 import { getSequelizeInstance } from "../models/index.js";
+import { MySQLConnection } from "@repo/database";
 
-type DBConfig = {
-  db_host: string;
-  db_user: string;
-  db_password: string;
-  db_name: string;
-};
-export const connectDB = async ({
-  db_host,
-  db_user,
-  db_password,
-  db_name,
-}: DBConfig) => {
+export const connectDB = async () => {
   try {
-    console.log('dn_name', db_name);
-    const sequelize = new Sequelize(db_name, db_user, db_password, {
-      host: db_host,
-      port: 3306,
-      dialect: "mysql",
-      pool: {
-        max: 10,
-        min: 0,
-        acquire: 30000,
-        idle: 10000,
-      },
-    });
-    await sequelize.authenticate();
-    await sequelize.sync();
-    await getSequelizeInstance(sequelize);
-    return sequelize;
-  } catch (error) {
-    throw error;
+    const dbInstance = await MySQLConnection.getInstance();
+    await getSequelizeInstance(dbInstance);
+  } catch (error: any) {
+    throw new Error("Failed to connect to the database" + error.message);
   }
 };

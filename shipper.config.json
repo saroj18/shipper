@@ -1,0 +1,21 @@
+{
+  "client": {
+    "path": "./client",
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "startCommand": "npm start",
+    "outputDirectory": "dist"
+  },
+  "server": {
+    "path": "./server",
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "startCommand": "npm start",
+    "outputDirectory": "dist"
+  },
+ 
+  "metadata": {
+    "createdBy": "saroj.aryal",
+    "createdAt": "2025-05-20T12:00:00Z"
+  }
+}

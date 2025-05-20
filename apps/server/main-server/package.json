@@ -1,0 +1,21 @@
+{
+  "name": "main-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\"",
+    "prod": "nodemon dist/server.js",
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@repo/database": "^1.0.0",
+    "@repo/rabbitmq": "^1.0.0",
+    "@repo/utils": "^1.0.0"
+  }
+}

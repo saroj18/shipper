@@ -1,8 +1,8 @@
 {
-  "name": "@repo/utils",
+  "name": "@repo/rabbitmq",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "build": "tsc"
   },
@@ -12,5 +12,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module"
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/amqplib": "^0.10.7"
+  }
 }

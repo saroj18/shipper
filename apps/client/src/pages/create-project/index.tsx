@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GitBranch, GithubIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,7 @@ const CreateProject = () => {
 
   const repoName = useParams().repoName as string;
   const { data: repo, isLoading } = userGithubSingleRepo(repoName);
+
   const [projectInfo, setProjectInfo] = useState<ProjectInfoType>({
     projectName: repoName,
     configFileLocation: "./",
@@ -49,7 +50,7 @@ const CreateProject = () => {
     installCommand: "",
     outputDirectory: "",
     envVariables: [],
-    projectLink:repo?.data.html_url as string,
+    projectLink: "",
   });
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,6 +65,18 @@ const CreateProject = () => {
   const clickHandler = () => {
     mutate(projectInfo);
   };
+
+  useEffect(() => {
+    if (repo) {
+      
+      setProjectInfo((prv) => {
+        return {
+          ...prv,
+          projectLink: repo?.data.html_url,
+        };
+      });
+    }
+  }, [repo]);
 
   return (
     <>

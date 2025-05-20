@@ -1,4 +1,6 @@
-import { asyncHandler } from "@repo/utils";
+import { ApiResponse, asyncHandler } from "@repo/utils";
+import { queue } from "../app.js";
+import { User } from "../models/index.js";
 
 export const projectConfigHandler = asyncHandler(async (req, resp) => {
   const {
@@ -10,8 +12,22 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
     installCommand,
     outputDirectory,
     envVariables,
+    projectLink,
   } = req.body;
 
+  const userId = req.user as string;
 
-  
+  const user = await User.findByPk(userId);
+
+  const repoUrl = projectLink.split("//");
+  const finalRepoUrl =
+    repoUrl[0] + "//" + user?.github_token + "@" + repoUrl[1];
+
+  (await queue).pushOnQueue(
+    "project-config",
+    JSON.stringify({ ...req.body, projectLink: finalRepoUrl })
+  );
+  resp
+    .status(200)
+    .json(new ApiResponse("Project Config Created", 200, req.body));
 });

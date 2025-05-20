@@ -11,12 +11,14 @@ import { userRouter } from "./route/user-route.js";
 import { userGithubRouter } from "./route/user-github-route.js";
 import { ENV } from "./ENV-Config.js";
 import { projectRouter } from "./route/project-route.js";
+import { MessageQueue } from "@repo/rabbitmq";
 dotenv.config();
 
 export const app = express();
 
 export const server = http.createServer(app);
 
+export const queue = MessageQueue.getInstance();
 app.use(express.json());
 app.use(
   cors({

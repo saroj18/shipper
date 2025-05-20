@@ -11,6 +11,7 @@ export type RepoType = {
   };
   private: boolean;
   html_url: string;
+  ssh_url: string;
 };
 
 export type AllRepoType = {
