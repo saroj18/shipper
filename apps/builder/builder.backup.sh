@@ -53,7 +53,7 @@ if [ "$CLIENT_PATH" == "client" ]; then
 
 # goes on client directory
 
-cd /home/app/output/$CLIENT_PATH || {
+cd /home/app/output/client || {
   echo "❌ Failed to change directory to client"
   exit 1
 }
@@ -125,9 +125,9 @@ fi
 
 
 if [ -d "$OUTPUT_DIRECTORY" ]; then
-  aws s3 cp --region ap-south-1 --recursive "$OUTPUT_DIRECTORY" s3://$S3_CLIENT_UCKET_NAME/$USER_PROJECT_IDENTITY/client
+  aws s3 cp --recursive "$OUTPUT_DIRECTORY" s3://$S3_CLIENT_UCKET_NAME/$USER_PROJECT_IDENTITY/client
 elif [ -d "$CLIENT_OUTPUT_DIR" ]; then
-  aws s3 cp --region ap-south-1 --recursive "$CLIENT_OUTPUT_DIR" s3://$S3_CLIENT_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
+  aws s3 cp --recursive "$CLIENT_OUTPUT_DIR" s3://$S3_CLIENT_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
 else
   echo "❌ Build failed: output directory not found"
   exit 1
@@ -139,7 +139,7 @@ fi
 if [[ "$SERVER_PATH" == "server" ]]; then
 
 # goes on server directory
-cd /home/app/output/$SERVER_PATH || {
+cd /home/app/output/server || {
   echo "❌ Failed to change directory to server"
   exit 1
 }
@@ -156,42 +156,113 @@ if [ ! -f "/home/app/output/server/package-lock.json" ]; then
   exit 1
 fi
 
-# Create AWS ECR repository if it doesn't exist
-if  ! aws ecr describe-repositories --region ap-south-1 --repository-names "$AWS_ECR_REPOSITORY_NAME" > /dev/null 2>&1; then
-  echo "🔧 Creating AWS ECR repository: $AWS_ECR_REPOSITORY_NAME"
-  aws ecr create-repository --region ap-south-1 --repository-name "$AWS_ECR_REPOSITORY_NAME" || {
-    echo "❌ Failed to create AWS ECR repository"
+node /home/app/image-builder.js "$SERVER_PATH" || {
+  echo "❌ Failed to run image-builder.js"
+  exit 1
+}
+
+# Install dependencies
+if [ -n "$INSTALL_COMMAND" ]; then
+  echo "🔧 Running install command: $INSTALL_COMMAND"
+  eval "$INSTALL_COMMAND" || {
+    echo "❌ Install command failed"
+    exit 1
+  }
+elif [ -n "$SERVER_INSTALL_CMD" ]; then
+ echo "🔧 Running custom install command: $SERVER_INSTALL_CMD"
+  eval "$SERVER_INSTALL_CMD" || {
+    echo "❌ Server install command failed"
     exit 1
   }
 else
-  echo "✅ AWS ECR repository already exists: $AWS_ECR_REPOSITORY_NAME"
+  echo "🔧 Running npm ci as fallback"
+  npm ci || {
+    echo "❌ npm ci failed"
+    exit 1
+  }
 fi
 
+# check it use typescript or not
 if [ -f "/home/app/output/server/tsconfig.json" ]; then
-
-docker build -t "$IMAGE_NAME":v2 -f /home/app/Dockerfile.ts.server . || {
-  echo "❌ Docker build failed"
-  exit 1
-}
+ # Build the project
+if [ -n "$BUILD_COMMAND" ]; then
+  echo "🔧 Running build command: $BUILD_COMMAND"
+  eval "$BUILD_COMMAND" || {
+    echo "❌ build command failed"
+    exit 1
+  }
+elif [ -n "$SERVER_BUILD_CMD" ]; then
+ echo "🔧 Running custom build command: $SERVER_BUILD_CMD"
+  eval "$SERVER_BUILD_CMD" || {
+    echo "❌ Server build command failed"
+    exit 1
+  }
 else
-  docker build -t "$IMAGE_NAME":v2 -f /home/app/Dockerfile.js.server . || {
-    echo "❌ Docker build failed"
+  echo "🔧 Running npm run build as fallback"
+  npm run build || {
+    echo "❌ npm run build failed"
     exit 1
   }
 fi
 
-
-aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 730335220956.dkr.ecr.ap-south-1.amazonaws.com
-
-docker tag $IMAGE_NAME:v2 "$AWS_ECR_REPOSITORY_URL/$AWS_ECR_REPOSITORY_NAME":v3 || {
-  echo "❌ Docker tag failed2"
+# Check if the build folder exists
+if [ ! -d "$OUTPUT_DIRECTORY" ]; then
+  echo "❌ Build failed: $OUTPUT_DIRECTORY folder not found"
+elif [ ! -d "$SERVER_OUTPUT_DIR" ]; then
+  echo "❌ Build failed: $SERVER_OUTPUT_DIR folder not found"
+else
+  echo "❌ Build failed: output directory not folder not found"
   exit 1
-} 
+fi
 
-docker push "$AWS_ECR_REPOSITORY_URL/$AWS_ECR_REPOSITORY_NAME":v3 || {
-  echo "❌ Docker push failed3"
+if [ -d "$OUTPUT_DIRECTORY" ]; then
+  echo "🔧 Creating zip file for $OUTPUT_DIRECTORY"
+  zip -r output.zip "$OUTPUT_DIRECTORY" || {
+    echo "❌ Failed to create zip file for $OUTPUT_DIRECTORY"
+    exit 1
+  }
+
+  node /home/app/image-builder.js "$OUTPUT_DIRECTORY" || {
+    echo "❌ Failed to run image-builder.js"
+    exit 1
+  }
+
+
+  aws s3 cp output.zip s3://$S3_SERVER_BUCKET_NAME/$USER_PROJECT_IDENTITY/server.zip || {
+    echo "❌ Failed to upload zip file to S3"
+    exit 1
+  }
+  echo "✅ Zip file uploaded successfully"
+elif [ -d "$SERVER_OUTPUT_DIR" ]; then
+  echo "🔧 Creating zip file for $SERVER_OUTPUT_DIR"
+  zip -r server_output.zip "$SERVER_OUTPUT_DIR" || {
+    echo "❌ Failed to create zip file for $SERVER_OUTPUT_DIR"
+    exit 1
+  }
+  aws s3 cp server_output.zip s3://$S3_SERVER_BUCKET_NAME/$USER_PROJECT_IDENTITY/server.zip || {
+    echo "❌ Failed to upload zip file to S3"
+    exit 1
+  }
+  echo "✅ Zip file uploaded successfully"
+else
+  echo "❌ Build failed: output directory not found"
   exit 1
-}
+fi
+else
+  # Upload the server code to S3
+  
+    echo "🔧 Creating zip file for server"
+    zip -r server.zip ../server || {
+      echo "❌ Failed to create zip file for server"
+      exit 1
+    }
+    aws s3 cp server.zip s3://$S3_SERVER_BUCKET_NAME/$USER_PROJECT_IDENTITY/server.zip || {
+      echo "❌ Failed to upload zip file to S3"
+      exit 1
+    }
+    echo "✅ Zip file uploaded successfully"
+  
+fi
 fi
 
 echo "✅ Build completed successfully"
