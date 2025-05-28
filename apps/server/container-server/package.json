@@ -1,0 +1,21 @@
+{
+  "name": "container-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\"",
+    "prod": "nodemon dist/server.js",
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-ecr": "^3.817.0",
+    "@repo/redis": "^1.0.0",
+    "@repo/utils": "^1.0.0"
+  }
+}
