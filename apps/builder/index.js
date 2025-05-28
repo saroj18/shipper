@@ -56,8 +56,7 @@ fs.readFile('/home/app/output/shipper.config.json', (err, data) => {
     SERVER_START_CMD="${shipperData.server.startCommand}"
     SERVER_OUTPUT_DIR="${shipperData.server.outputDirectory}"
     SERVER_PATH="${shipperData.server.path.split('./').pop()}"
-    AWS_ECR_REPOSITORY_URI=""
-    \n`
+    `
     );
   }
 });
