@@ -7,6 +7,7 @@
     "build": "tsc"
   },
   "exports": {
+    ".":"./dist/index.js",
     "./models/project.model": "./dist/models/project.model.js"
   },
   "keywords": [],

@@ -1,10 +1,18 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema } from 'mongoose';
 
 interface ProjectSchemaType extends Document {
   name: string;
   createdBy: string;
   project_url: string;
-  domain: string;
+  serverDomain: string;
+  clientDomain: string;
+  serverDockerImage: string;
+  env: [
+    {
+      key: string;
+      value: string;
+    },
+  ];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,10 +34,28 @@ const ProjectSchema = new Schema<ProjectSchemaType>(
       required: true,
       trim: true,
     },
-    domain: {
+    serverDomain: {
       type: String,
-      required: true,
       trim: true,
+      default: null,
+    },
+    clientDomain: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    serverDockerImage: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    env: {
+      type: [
+        {
+          key: { type: String, trim: true },
+          value: { type: String, trim: true },
+        },
+      ],
     },
   },
   {
@@ -37,7 +63,4 @@ const ProjectSchema = new Schema<ProjectSchemaType>(
   }
 );
 
-export const Project = mongoose.model<ProjectSchemaType>(
-  "project",
-  ProjectSchema
-);
+export const Project = mongoose.model<ProjectSchemaType>('project', ProjectSchema);
