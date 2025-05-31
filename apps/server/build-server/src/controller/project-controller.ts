@@ -1,6 +1,6 @@
 import { ApiResponse, asyncHandler } from '@repo/utils';
 import { queue } from '../app.js';
-import { User } from '../models/index.js';
+import { User } from '@repo/database/models/user.model.js';
 
 export const projectConfigHandler = asyncHandler(async (req, resp) => {
   const {
@@ -30,6 +30,7 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
       projectLink: finalRepoUrl,
       username: user?.username,
       envVariables,
+      userId,
     })
   );
   resp.status(200).json(new ApiResponse('Project Config Created', 200, req.body));

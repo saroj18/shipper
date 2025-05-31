@@ -1,7 +1,7 @@
-import { server } from "./app.js";
-import dotenv from "dotenv";
-import { connectDB } from "./dbConnect/dbConnection.js";
-import { ENV } from "./ENV-Config.js";
+import { server } from './app.js';
+import dotenv from 'dotenv';
+import { MySQLConnection } from '@repo/database';
+import { ENV } from './ENV-Config.js';
 dotenv.config();
 
 // const dbConfig = {
@@ -11,10 +11,10 @@ dotenv.config();
 //   db_name: ENV.DB_NAME,
 // };
 
-connectDB()
+MySQLConnection.getInstance()
   .then(() => {
     server.listen(ENV.PORT, () => {
-      console.log("database and server started successfully at port", ENV.PORT);
+      console.log('database and server started successfully at port', ENV.PORT);
     });
   })
   .catch((err: any) => {

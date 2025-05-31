@@ -1,6 +1,7 @@
-import mongoose, { Mongoose } from "mongoose";
-import { Sequelize } from "sequelize";
-import dotenv from "dotenv";
+import mongoose, { Mongoose } from 'mongoose';
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+import { getSequelizeInstance } from './models/user.model.js';
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ export class MongoDBConnection implements DBConnection {
       const dbConnection = new MongoDBConnection();
       const connection = await dbConnection.connect();
       if (!connection) {
-        throw new Error("Failed to establish MongoDB connection");
+        throw new Error('Failed to establish MongoDB connection');
       }
       MongoDBConnection.instance = connection;
     }
@@ -25,12 +26,10 @@ export class MongoDBConnection implements DBConnection {
   }
   async connect() {
     try {
-      const dbConnection = await mongoose.connect(
-        "mongodb://localhost:27017/shipper"
-      );
+      const dbConnection = await mongoose.connect('mongodb://localhost:27017/shipper');
       return dbConnection;
     } catch (error) {
-      console.error("MongoDB Connection Error:", error);
+      console.error('MongoDB Connection Error:', error);
     }
   }
 }
@@ -43,14 +42,14 @@ export class MySQLConnection implements DBConnection {
       const dbConnection = new MySQLConnection();
       const connection = await dbConnection.connect();
       if (!connection) {
-        throw new Error("Failed to establish MySQL connection");
+        throw new Error('Failed to establish MySQL connection');
       }
       MySQLConnection.instance = connection;
     }
     return MySQLConnection.instance;
   }
 
-  async connect() {
+    async connect() {
     try {
       const sequelize = new Sequelize(
         process.env.DB_NAME as string,
@@ -59,7 +58,7 @@ export class MySQLConnection implements DBConnection {
         {
           host: process.env.DB_HOST,
           port: 3306,
-          dialect: "mysql",
+          dialect: 'mysql',
           pool: {
             max: 10,
             min: 0,
@@ -70,9 +69,10 @@ export class MySQLConnection implements DBConnection {
       );
       await sequelize.authenticate();
       await sequelize.sync();
+      await getSequelizeInstance(sequelize);
       return sequelize;
     } catch (error) {
-      console.error("MySQL Connection Error:", error);
+      console.error('MySQL Connection Error:', error);
     }
   }
 }

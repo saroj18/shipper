@@ -2,7 +2,7 @@ import express, { Response } from 'express';
 import http from 'http';
 import dotenv from 'dotenv';
 import httpProxy from 'http-proxy';
-import { Project } from '@repo/database/models/project.model';
+import { Project } from '@repo/database/models/project.model.js';
 dotenv.config();
 import { CacheProvider } from '@repo/redis';
 
@@ -15,14 +15,11 @@ app.use(async (req, res) => {
   const hostname = req.hostname;
   const subdomain = hostname.split('.')[0];
   const flag = subdomain.split('-').pop();
-
-  proxy.on('proxyReq', (proxyReq, req, resp) => {
-    const url = req.url;
-    if (url === '/' && flag == 'client') proxyReq.path += `index.html`;
-  });
+  console.log('flag', flag);
 
   if (flag === 'server') {
     const container_info = JSON.parse(await CacheProvider.getDataFromCache(subdomain));
+    console.log('container_info', container_info);
 
     if (container_info) {
       return proxy.web(req, res, {
@@ -30,14 +27,15 @@ app.use(async (req, res) => {
         changeOrigin: true,
       });
     }
-
+    console.log('dammm.>>>>');
     const project = await Project.findOne({
       serverDomain: subdomain,
     });
     console.log('project', project);
 
     if (!project) {
-      const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/error.html`;
+      const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/`;
+      req.url = '/error.html';
 
       return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
     }
@@ -50,12 +48,22 @@ app.use(async (req, res) => {
     });
 
     if (!project) {
-      const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/error.html`;
+      console.log('error');
+      const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/`;
+      req.url = '/error.html';
 
       return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
     }
 
+    console.log('path', req.url);
     const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/${project.createdBy}/${project.name}/client`;
+    if (req.url !== '/' && !req.url.startsWith('/assets')) {
+      req.url = '/index.html';
+    }
+
+    if (req.url == '/') {
+      req.url = '/index.html'
+    }
 
     return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
   }

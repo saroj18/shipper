@@ -1,34 +1,34 @@
-import RootLayout from "./RootLayout";
-import Home from "./pages/home";
-import Login from "./pages/login";
-import { createBrowserRouter, RouterProvider } from "react-router";
-import Main from "./pages/main";
-import AddProject from "./pages/add-project";
-import CreateProject from "./pages/create-project";
-import ProjectDashboard from "./pages/project-dashboard.tsx/pages/dashboard/index.tsx";
-import ProjectDashboardLayout from "./pages/project-dashboard.tsx/project-dashboard-layout.tsx";
-import Deployment from "./pages/project-dashboard.tsx/pages/deployment/index.tsx";
-import SettingLayout from "./pages/project-dashboard.tsx/pages/settings/settingLayout.tsx";
-import ProjectSettings from "./pages/project-dashboard.tsx/pages/settings/pages/general/index.tsx";
-import ScriptSettings from "./pages/project-dashboard.tsx/pages/settings/pages/script-setting/index.tsx";
-import EnvironmentVariables from "./pages/project-dashboard.tsx/pages/settings/pages/environment-variable/index.tsx";
-import DeploymentLogs from "./pages/project-dashboard.tsx/pages/logs/index.tsx";
-import ProtectedRoute from "./components/protected-route.tsx";
-import PublicRoute from "./components/public-route.tsx";
-import Loader from "./components/loader.tsx";
+import RootLayout from './RootLayout';
+import Home from './pages/home';
+import Login from './pages/login';
+import { createBrowserRouter, RouterProvider } from 'react-router';
+import Main from './pages/main';
+import AddProject from './pages/add-project';
+import CreateProject from './pages/create-project';
+import ProjectDashboard from './pages/project-dashboard.tsx/pages/dashboard/index.tsx';
+import ProjectDashboardLayout from './pages/project-dashboard.tsx/project-dashboard-layout.tsx';
+import Deployment from './pages/project-dashboard.tsx/pages/deployment/index.tsx';
+import SettingLayout from './pages/project-dashboard.tsx/pages/settings/settingLayout.tsx';
+import ProjectSettings from './pages/project-dashboard.tsx/pages/settings/pages/general/index.tsx';
+import ScriptSettings from './pages/project-dashboard.tsx/pages/settings/pages/script-setting/index.tsx';
+import EnvironmentVariables from './pages/project-dashboard.tsx/pages/settings/pages/environment-variable/index.tsx';
+import DeploymentLogs from './pages/project-dashboard.tsx/pages/logs/index.tsx';
+import ProtectedRoute from './components/protected-route.tsx';
+import PublicRoute from './components/public-route.tsx';
+import Loader from './components/loader.tsx';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <RootLayout />,
     loader: () => <Loader />,
     children: [
       {
-        path: "/",
+        path: '/',
         element: <Home />,
       },
       {
-        path: "login",
+        path: 'login',
         element: (
           <PublicRoute>
             <Login />
@@ -36,7 +36,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "main",
+        path: 'main',
         element: (
           <ProtectedRoute>
             <Main />
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "addproject",
+        path: 'addproject',
         element: (
           <ProtectedRoute>
             <AddProject />
@@ -52,7 +52,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "create-project/:repoName",
+        path: 'create-project/:repoName',
         element: (
           <ProtectedRoute>
             <CreateProject />
@@ -60,7 +60,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "project-dashboard",
+        path: 'project-dashboard',
         element: (
           <ProtectedRoute>
             <ProjectDashboardLayout />
@@ -68,7 +68,7 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            path: "",
+            path: '',
             element: (
               <ProjectDashboard
                 projectName="blog-crud-htg3"
@@ -85,19 +85,19 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "deployment",
+            path: 'deployment',
             element: <Deployment />,
           },
           {
-            path: "logs",
+            path: 'logs',
             element: <DeploymentLogs />,
           },
           {
-            path: "settings",
+            path: 'settings',
             element: <SettingLayout />,
             children: [
               {
-                path: "",
+                path: '',
                 element: (
                   <ProjectSettings
                     projectName="blog-crud-htg3"
@@ -107,12 +107,12 @@ const router = createBrowserRouter([
                 ),
               },
               {
-                path: "build-script",
+                path: 'build-script',
                 element: <ScriptSettings />,
               },
 
               {
-                path: "environment-variables",
+                path: 'environment-variables',
                 element: <EnvironmentVariables />,
               },
             ],

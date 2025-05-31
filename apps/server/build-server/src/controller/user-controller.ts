@@ -1,5 +1,5 @@
 import { ApiError, ApiResponse, asyncHandler } from "@repo/utils";
-import { User } from "../models/index.js";
+import { User } from "@repo/database/models/user.model.js";
 import { ENV } from "../ENV-Config.js";
 
 export const loginWithGitHub = asyncHandler(async (req, resp) => {

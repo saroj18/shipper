@@ -1,17 +1,17 @@
-import express, { NextFunction, Request, Response } from "express";
-import { globalErrorHandler, ApiError } from "@repo/utils";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import http from "http";
-import dotenv from "dotenv";
+import express, { NextFunction, Request, Response } from 'express';
+import { globalErrorHandler, ApiError } from '@repo/utils';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import http from 'http';
+import dotenv from 'dotenv';
 // import GoogleStrategy from "passport-google-oauth20";
-import GithubStrategy from "passport-github";
-import passport from "passport";
-import { userRouter } from "./route/user-route.js";
-import { userGithubRouter } from "./route/user-github-route.js";
-import { ENV } from "./ENV-Config.js";
-import { projectRouter } from "./route/project-route.js";
-import { MessageQueue } from "@repo/rabbitmq";
+import GithubStrategy from 'passport-github';
+import passport from 'passport';
+import { userRouter } from './route/user-route.js';
+import { userGithubRouter } from './route/user-github-route.js';
+import { ENV } from './ENV-Config.js';
+import { projectRouter } from './route/project-route.js';
+import { MessageQueue } from '@repo/rabbitmq';
 dotenv.config();
 
 export const app = express();
@@ -22,8 +22,9 @@ export const queue = MessageQueue.getInstance();
 app.use(express.json());
 app.use(
   cors({
-    origin: ENV.ORIGIN,
+    origin: 'http://localhost:5173',
     credentials: true,
+    methods: ['GET', 'POST'],
   })
 );
 
@@ -42,9 +43,9 @@ passport.use(
 );
 
 app.use(cookieParser());
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/github", userGithubRouter);
-app.use("/api/v1/project", projectRouter);
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/github', userGithubRouter);
+app.use('/api/v1/project', projectRouter);
 app.use((err: ApiError, req: Request, resp: Response, next: NextFunction) => {
   globalErrorHandler(err, resp);
 });

@@ -1,6 +1,6 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { ENV } from "../ENV-Config.js";
+import { DataTypes, Model, Sequelize } from 'sequelize';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { ENV } from '@repo/utils';
 
 interface JWTPayload extends JwtPayload {
   id: number;
@@ -18,13 +18,14 @@ export class UserSchema extends Model {
   declare readonly updatedAt: Date;
 
   public static async generateToken(payload: jwt.JwtPayload) {
-    const accessToken = jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: "7d" });
-    const refreshToken = jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: "7d" });
+    const accessToken = jwt.sign(payload, 'ENV.JWT_SECRET', { expiresIn: '7d' });
+    const refreshToken = jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: '7d' });
     return { accessToken, refreshToken };
   }
 
   public static verifyAccessToken(token: string) {
-    const verifyToken = jwt.verify(token, ENV.JWT_SECRET) as JWTPayload;
+    const verifyToken = jwt.verify(token, 'ENV.JWT_SECRET') as JWTPayload;
+    console.log('dem', verifyToken);
     return verifyToken;
   }
 
@@ -63,7 +64,7 @@ export async function UserModel(sequelizeInstance: Sequelize) {
       },
     },
     {
-      tableName: "users",
+      tableName: 'users',
       sequelize: sequelizeInstance,
       timestamps: true,
       underscored: true,
@@ -72,7 +73,7 @@ export async function UserModel(sequelizeInstance: Sequelize) {
   const tableExists = await sequelizeInstance
     .getQueryInterface()
     .showAllTables()
-    .then((tables) => tables.includes("users"));
+    .then((tables) => tables.includes('users'));
   if (!tableExists) {
     await UserSchema.sync({ alter: true });
   }
@@ -80,3 +81,11 @@ export async function UserModel(sequelizeInstance: Sequelize) {
 
   return user;
 }
+
+
+
+export let User: typeof UserSchema;
+export async function getSequelizeInstance(sequelizeInstance: Sequelize) {
+  User = await UserModel(sequelizeInstance);
+}
+

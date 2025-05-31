@@ -12,7 +12,7 @@ echo "Bucket: $S3_BUCKET_NAME"
 
 
 git clone "$GIT_REPOSITORY__URL" /home/app/output || {
-  echo "❌ Git clone failed please check the repository URL"
+  echo "[ERROR] ❌ Git clone failed please check the repository URL"
   exit 1
 }
 
@@ -23,7 +23,7 @@ cd /home/app/output || {
 
 
 if [ ! -f "shipper.config.json" ]; then
-  echo "❌ shipper.config.json not found"
+  echo " [ERROR] ❌ shipper.config.json not found"
   exit 1
 fi
 
@@ -31,21 +31,21 @@ fi
 if [ -f "/home/app/index.js" ]; then
   echo "🔧 Running Node.js file: index.js"
   node /home/app/index.js || {
-    echo "❌ Failed to execute index.js"
+    echo "[ERROR] ❌ Failed to execute index.js"
     exit 1
   }
 else
-  echo "❌ index.js not found"
+  echo "[ERROR] ❌ index.js not found"
   exit 1
 fi
 
 if [ ! -f "/home/app/output/shipper.env" ]; then
-  echo "❌ shipper.env not found"
+  echo "[ERROR] ❌ shipper.env not found"
   exit 1
 fi
 
 . /home/app/output/shipper.env || {
-  echo "❌ Failed to source shipper.env"
+  echo "[ERROR] ❌ Failed to source shipper.env"
   exit 1
 }
 
@@ -54,18 +54,18 @@ if [ "$CLIENT_PATH" == "client" ]; then
 # goes on client directory
 
 cd /home/app/output/$CLIENT_PATH || {
-  echo "❌ Failed to change directory to client"
+  echo "[ERROR] ❌ Failed to change directory to client"
   exit 1
 }
 
 # Check if package.json exists
 if [ ! -f "/home/app/output/client/package.json" ]; then
-  echo "❌ package.json noot found"
+  echo "[ERROR] ❌ package.json noot found"
   exit 1
 fi
 
 if [ ! -f "/home/app/output/client/package-lock.json" ]; then
-  echo "❌ package-lock.json not found"
+  echo "[ERROR] ❌ package-lock.json not found"
   exit 1
 fi
 
@@ -73,20 +73,20 @@ fi
 # Install dependencies
 if [ -n "$INSTALL_COMMAND" ]; then
   echo "🔧 Running install command: $INSTALL_COMMAND"
-  eval "$INSTALL_COMMAND" || {
-    echo "❌ Install command failed"
+  eval "$INSTALL_COMMAND" 2>&1 | sed 's/^/[INSTALL] /' || {
+    echo "[ERROR] ❌ Install command failed"
     exit 1
   }
 elif [ -n "$CLIENT_INSTALL_CMD" ]; then
  echo "🔧 Running custom install command: $CLIENT_INSTALL_CMD"
-  eval "$CLIENT_INSTALL_CMD" || {
-    echo "❌ Client install command failed"
+  eval "$CLIENT_INSTALL_CMD" 2>&1 | sed 's/^/[INSTALL] /' || {
+    echo "[ERROR] ❌ Client install command failed"
     exit 1
   }
 else
   echo "🔧 Running npm ci as fallback"
-  npm ci || {
-    echo "❌ npm ci failed"
+  npm ci 2>&1 | sed 's/^/[INSTALL] /' || {
+    echo "[ERROR] ❌ npm ci failed"
     exit 1
   }
 fi
@@ -95,41 +95,41 @@ fi
 # Build the project
 if [ -n "$BUILD_COMMAND" ]; then
   echo "🔧 Running build command: $BUILD_COMMAND"
-  eval "$BUILD_COMMAND" || {
-    echo "❌ build command failed"
+  eval "$BUILD_COMMAND" 2>&1 | sed 's/^/[BUILD] /' || {
+    echo "[ERROR] ❌ build command failed"
     exit 1
   }
 elif [ -n "$CLIENT_BUILD_CMD" ]; then
  echo "🔧 Running custom build command: $CLIENT_BUILD_CMD"
-  eval "$CLIENT_BUILD_CMD" || {
-    echo "❌ Client build command failed"
+  eval "$CLIENT_BUILD_CMD" 2>&1 | sed 's/^/[BUILD] /' || {
+    echo "[ERROR] ❌ Client build command failed"
     exit 1
   }
 else
   echo "🔧 Running npm run build as fallback"
-  npm run build || {
-    echo "❌ npm run build failed"
+  npm run build 2>&1 | sed 's/^/[BUILD] /' || {
+    echo "[ERROR] ❌ npm run build failed"
     exit 1
   }
 fi
 
 # Check if the build folder exists
 if [ ! -d "$OUTPUT_DIRECTORY" ]; then
-  echo "❌ Build failed: $OUTPUT_DIRECTORY folder not found"
+  echo "[ERROR] ❌ Build failed: $OUTPUT_DIRECTORY folder not found"
 elif [ ! -d "$CLIENT_OUTPUT_DIR" ]; then
-  echo "❌ Build failed: $CLIENT_OUTPUT_DIR folder not found"
+  echo "[ERROR] ❌ Build failed: $CLIENT_OUTPUT_DIR folder not found"
 else
-  echo "❌ Build failed: output directory not folder not found"
+  echo "[ERROR] ❌ Build failed: output directory not folder not found"
   exit 1
 fi
 
 
 if [ -d "$OUTPUT_DIRECTORY" ]; then
-  aws s3 cp --region ap-south-1 --recursive "$OUTPUT_DIRECTORY" s3://$S3_CLIENT_UCKET_NAME/$USER_PROJECT_IDENTITY/client
+  aws s3 cp --region ap-south-1 --recursive "$OUTPUT_DIRECTORY" s3://$S3_CLIENT_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
 elif [ -d "$CLIENT_OUTPUT_DIR" ]; then
   aws s3 cp --region ap-south-1 --recursive "$CLIENT_OUTPUT_DIR" s3://$S3_CLIENT_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
 else
-  echo "❌ Build failed: output directory not found"
+  echo "[ERROR] ❌ Build failed: output directory not found"
   exit 1
 fi
 fi
@@ -140,19 +140,19 @@ if [[ "$SERVER_PATH" == "server" ]]; then
 
 # goes on server directory
 cd /home/app/output/$SERVER_PATH || {
-  echo "❌ Failed to change directory to server"
+  echo "[ERROR] ❌ Failed to change directory to server"
   exit 1
 }
 
 # Check if package.json exists
 if [ ! -f "/home/app/output/server/package.json" ]; then
-  echo "❌ package.json not found"
+  echo "[ERROR] ❌ package.json not found for server"
   exit 1
 fi
 
 # Check if package-lock.json exists
 if [ ! -f "/home/app/output/server/package-lock.json" ]; then
-  echo "❌ package-lock.json not found"
+  echo "[SERVER] ❌ package-lock.json not found for server"
   exit 1
 fi
 
@@ -194,4 +194,5 @@ docker push "$AWS_ECR_REPOSITORY_URL/$AWS_ECR_REPOSITORY_NAME":v3 || {
 }
 fi
 
-echo "✅ Build completed successfully"
+echo "[SUCCESS] ✅ Build completed successfully"
+echo "[FAIL] ❌ Build Failed"

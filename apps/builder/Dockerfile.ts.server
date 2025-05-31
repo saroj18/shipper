@@ -6,11 +6,11 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install 
+RUN sh -c 'npm install 2>&1 | sed "s/^/[INSTALL] /"'
 
 COPY . .
 
-RUN npm run build
+RUN sh -c 'npm run build 2>&1 | sed "s/^/[BUILD] /"'
 
 #runner stage
 
@@ -19,6 +19,6 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm ci --only=production
+RUN sh -c 'npm ci --only=production 2>&1 | sed "s/^/[INSTALL] /"'
 
 CMD [ "node", "dist/index.js" ]

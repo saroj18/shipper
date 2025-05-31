@@ -7,13 +7,14 @@
     "build": "tsc"
   },
   "exports": {
-    ".":"./dist/index.js",
-    "./models/project.model": "./dist/models/project.model.js"
+    ".": "./dist/index.js",
+    "./models/project.model.js": "./dist/models/project.model.js",
+    "./models/user.model.js": "./dist/models/user.model.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@repo/utils": "^1.0.0",
     "@types/mongoose": "^5.11.96",

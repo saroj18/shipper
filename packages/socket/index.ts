@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import http from 'http';
-import { UserSchema } from '@repo/database/models/user.model';
+import { UserSchema } from '@repo/database/models/user.model.js';
 import { CacheProvider } from '@repo/redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import cookie from 'cookie';
@@ -14,8 +14,9 @@ export class SocketProvider {
     if (!this.instance) {
       this.instance = new Server(server, {
         cors: {
-          origin: '*',
+          origin: 'http://localhost:5173',
           methods: ['GET', 'POST'],
+          credentials: true,
         },
       });
 
@@ -28,6 +29,7 @@ export class SocketProvider {
           const cookies = socket.handshake.headers.cookie || '';
           const parsedCookies = cookie.parse(cookies);
           const { accessToken } = parsedCookies;
+          console.log('>>>>>', accessToken);
 
           if (!accessToken) {
             console.warn('Missing accessToken. Disconnecting socket.');
@@ -37,12 +39,13 @@ export class SocketProvider {
           let payload;
           try {
             payload = UserSchema.verifyAccessToken(accessToken);
-          } catch (err) {
+            console.log('payload', payload);
+          } catch (err: any) {
             console.warn('Invalid token. Disconnecting socket.');
+            console.log('er>>>', err.message);
             return socket.disconnect(true);
           }
-
-          const userId = payload.id.toString();
+          const userId = payload!.id.toString();
           console.log(`User ${userId} connected with socket ${socket.id}`);
 
           // Store socket ID under user ID

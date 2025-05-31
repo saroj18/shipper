@@ -82,11 +82,11 @@ export const runServerInsideContainer = async (image: string, flag: string, env:
       Image: image,
       name: containerName,
       ExposedPorts: {
-        [`${port}/tcp`]: {},
+        [`3000/tcp`]: {},
       },
       HostConfig: {
         PortBindings: {
-          [`${port}/tcp`]: [
+          [`3000/tcp`]: [
             {
               HostIp: '0.0.0.0',
               HostPort: port.toString(),
