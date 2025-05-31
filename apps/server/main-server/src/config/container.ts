@@ -5,6 +5,32 @@ config();
 import { CacheProvider } from '@repo/redis';
 import { SocketProvider } from '@repo/socket';
 
+const INCLUDE_KEYWORDS = [
+  'npm install',
+  'pnpm install',
+  'yarn install',
+  'RUN npm',
+  'RUN yarn',
+  'Installing',
+  'Building',
+  'Compiled successfully',
+  'Added',
+  'Build completed',
+  '[BUILD]',
+  '[ERROR]',
+  '[INSTALL]',
+  'shipper.config',
+];
+
+const EXCLUDE_KEYWORDS = [
+  'Pushed',
+  'Pulling',
+  'Downloading',
+  'Already exists',
+  'Digest:',
+  'Status: Downloaded',
+];
+
 export const runBuildContainer = async (projectInfo: any) => {
   const docker = new Docker();
   try {
@@ -44,17 +70,43 @@ export const runBuildContainer = async (projectInfo: any) => {
     });
 
     logStream.on('data', (chunk) => {
-      console.log('>>>>>', chunk.toString('utf8'));
-      SocketProvider.emitEvent(projectInfo.userId, 'build_logs', chunk.toString('utf8'));
+      // console.log('>>>>>', chunk.toString('utf8'));
+
+      const header = chunk.slice(0, 8);
+      const type = header[0] === 1 ? 'stdout' : 'stderr';
+      const content = chunk.slice(8).toString();
+
+      const lines = content.split('\n').filter(Boolean);
+
+      for (const line of lines) {
+        const isIncluded = INCLUDE_KEYWORDS.some((k) => line.includes(k));
+        const isExcluded = EXCLUDE_KEYWORDS.some((k) => line.includes(k));
+
+        if (isIncluded && !isExcluded) {
+          const logObject = {
+            type,
+            message: line,
+          };
+          console.log(logObject); // or stream/send it
+          SocketProvider.emitEvent(projectInfo.userId, 'build_logs', logObject);
+        }
+      }
     });
 
-    await container.wait();
+    const waitAMin = await container.wait();
+    console.log('checking for wait', waitAMin.StatusCode);
     await container.remove();
+
+    if (waitAMin.StatusCode !== 0) {
+      SocketProvider.emitEvent(projectInfo.userId, 'build_status', false);
+      return;
+    }
 
     const findProject = await Project.findOne({
       project_url: projectInfo.projectLink,
     });
     if (findProject) {
+      SocketProvider.emitEvent(projectInfo.userId, 'build_status', true);
       await Project.updateMany(
         { project_url: projectInfo.projectLink },
         {
@@ -93,6 +145,7 @@ export const runBuildContainer = async (projectInfo: any) => {
       const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}`;
       await fetch(BASE_PATH);
     } else {
+      SocketProvider.emitEvent(projectInfo.userId, 'build_status', true);
       await Project.create({
         name: projectInfo.projectName,
         createdBy: projectInfo.username,

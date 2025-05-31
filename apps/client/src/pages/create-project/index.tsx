@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
-import { GitBranch, GithubIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { useEffect, useState } from 'react';
+import { GitBranch, GithubIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
-import BuildSection from "./components/build-section";
-import EnvSection from "./components/env.section";
-import BuildLogs from "../build-logs";
-import TechStackSelector from "./components/tech-stack-selector";
-import { useParams } from "react-router";
-import { userGithubSingleRepo } from "@/api/github";
-import { useMutation } from "@tanstack/react-query";
-import { deployProject } from "@/api/project";
+import BuildSection from './components/build-section';
+import EnvSection from './components/env.section';
+import BuildLogs from '../build-logs';
+import TechStackSelector from './components/tech-stack-selector';
+import { useParams } from 'react-router';
+import { userGithubSingleRepo } from '@/api/github';
+import { useMutation } from '@tanstack/react-query';
+import { deployProject } from '@/api/project';
+import { socket } from '@/socket';
 
 export type ProjectInfoType = {
   projectName: string;
@@ -31,26 +32,30 @@ const CreateProject = () => {
   const { mutate } = useMutation({
     mutationFn: deployProject,
     onSuccess: (data) => {
-      console.log("User created:", data);
+      console.log('User created:', data);
     },
     onError: (error) => {
-      console.error("Error creating user:", error);
+      console.error('Error creating user:', error);
     },
   });
+  const [build, setBuild] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  console.log('build', build);
 
   const repoName = useParams().repoName as string;
   const { data: repo, isLoading } = userGithubSingleRepo(repoName);
 
   const [projectInfo, setProjectInfo] = useState<ProjectInfoType>({
     projectName: repoName,
-    configFileLocation: "./",
-    techStack: "",
-    buildCommand: "",
-    startCommand: "",
-    installCommand: "",
-    outputDirectory: "",
+    configFileLocation: './',
+    techStack: '',
+    buildCommand: '',
+    startCommand: '',
+    installCommand: '',
+    outputDirectory: '',
     envVariables: [],
-    projectLink: "",
+    projectLink: '',
   });
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,12 +68,12 @@ const CreateProject = () => {
   };
 
   const clickHandler = () => {
+    setLoading(true);
     mutate(projectInfo);
   };
 
   useEffect(() => {
     if (repo) {
-      
       setProjectInfo((prv) => {
         return {
           ...prv,
@@ -77,6 +82,17 @@ const CreateProject = () => {
       });
     }
   }, [repo]);
+
+  useEffect(() => {
+    socket.on('build_status', (status: boolean) => {
+      setBuild(status);
+      setLoading(false);
+    });
+
+    return () => {
+      socket.off('build_status');
+    };
+  }, []);
 
   return (
     <>
@@ -88,9 +104,7 @@ const CreateProject = () => {
           <CardContent className="space-y-6 text-white ">
             <Card className="bg-[#1a1a1a] border-[#333]">
               <CardContent className=" text-white">
-                <p className=" text-sm mb-2 text-gray-400">
-                  Importing from GitHub
-                </p>
+                <p className=" text-sm mb-2 text-gray-400">Importing from GitHub</p>
                 <div className="flex items-center gap-x-2">
                   <GithubIcon className="text-white" />
                   <span>{repo?.data.name}</span>
@@ -121,10 +135,7 @@ const CreateProject = () => {
 
             <Separator className="bg-[#333]" />
 
-            <TechStackSelector
-              projectInfo={projectInfo}
-              setProjectInfo={setProjectInfo}
-            />
+            <TechStackSelector projectInfo={projectInfo} setProjectInfo={setProjectInfo} />
 
             <div className="space-y-2">
               <Label htmlFor="root-dir" className="text-gray-400 text-sm">
@@ -140,19 +151,14 @@ const CreateProject = () => {
                 />
               </div>
             </div>
-            <BuildSection
-              projectInfo={projectInfo}
-              setProjectInfo={setProjectInfo}
-            />
-            <EnvSection
-              projectInfo={projectInfo}
-              setProjectInfo={setProjectInfo}
-            />
+            <BuildSection projectInfo={projectInfo} setProjectInfo={setProjectInfo} />
+            <EnvSection projectInfo={projectInfo} setProjectInfo={setProjectInfo} />
             <Button
+              disabled={loading}
               onClick={clickHandler}
               className="w-full bg-white text-black hover:bg-gray-200"
             >
-              Deploy
+              {loading ? 'Deploying.....' : 'Deploy'}
             </Button>
           </CardContent>
         </Card>
