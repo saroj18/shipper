@@ -1,6 +1,6 @@
 import { server } from './app.js';
 import dotenv from 'dotenv';
-import { MySQLConnection } from '@repo/database';
+import { MongoDBConnection, MySQLConnection } from '@repo/database';
 import { ENV } from './ENV-Config.js';
 dotenv.config();
 
@@ -13,8 +13,10 @@ dotenv.config();
 
 MySQLConnection.getInstance()
   .then(() => {
-    server.listen(ENV.PORT, () => {
-      console.log('database and server started successfully at port', ENV.PORT);
+    MongoDBConnection.getInstance().then(() => {
+      server.listen(ENV.PORT, () => {
+        console.log('database and server started successfully at port', ENV.PORT);
+      });
     });
   })
   .catch((err: any) => {

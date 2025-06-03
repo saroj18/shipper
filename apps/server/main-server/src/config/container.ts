@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 config();
 import { CacheProvider } from '@repo/redis';
 import { SocketProvider } from '@repo/socket';
+import { envExtrator } from './env.extractor.js';
 
 const INCLUDE_KEYWORDS = [
   'npm install',
@@ -33,9 +34,11 @@ const EXCLUDE_KEYWORDS = [
 
 export const runBuildContainer = async (projectInfo: any) => {
   const docker = new Docker();
+  // const env = envExtrator(projectInfo.envVariables);
+  // console.log("env>>>>>", env);
   try {
     const container = await docker.createContainer({
-      Image: '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v4',
+      Image: '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1',
       Env: [
         `PROJECT_NAME=${projectInfo.projectName}`,
         `GIT_REPOSITORY__URL=${projectInfo.projectLink}`,
@@ -45,15 +48,16 @@ export const runBuildContainer = async (projectInfo: any) => {
         `S3_SERVER_BUCKET_NAME=bucket-shipper-server`,
         `USER_PROJECT_IDENTITY=${projectInfo.username + '/' + projectInfo.projectName}`,
         `PROJECT_NAME=${projectInfo.projectName}`,
-        `BUILD_COMMAND=${projectInfo.buildCommand}`,
-        `START_COMMAND=${projectInfo.startCommand}`,
-        `INSTALL_COMMAND=${projectInfo.installCommand}`,
-        `OUTPUT_DIRECTORY=${projectInfo.outputDirectory}`,
+        `BUILD_COMMAND=${projectInfo?.buildCommand}`,
+        `START_COMMAND=${projectInfo?.startCommand}`,
+        `INSTALL_COMMAND=${projectInfo?.installCommand}`,
+        `OUTPUT_DIRECTORY=${projectInfo?.outputDirectory}`,
         `AWS_ECR_REPOSITORY_URL=${process.env.AWS_ECR_REPOSITORY_URL}`,
         `AWS_REGION=${process.env.AWS_REGION}`,
         `AWS_ECR_AUTH_CMD=${process.env.AWS_ECR_AUTH_CMD}`,
         `IMAGE_NAME=${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}`,
         `AWS_ECR_REPOSITORY_NAME=${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}`,
+        // ...env,
       ],
       HostConfig: {
         Binds: ['/var/run/docker.sock:/var/run/docker.sock'],
@@ -81,6 +85,16 @@ export const runBuildContainer = async (projectInfo: any) => {
       for (const line of lines) {
         const isIncluded = INCLUDE_KEYWORDS.some((k) => line.includes(k));
         const isExcluded = EXCLUDE_KEYWORDS.some((k) => line.includes(k));
+        console.log('line>>>>>', line);
+        const isClientExists = line.includes('CLIENT_IS_HERE');
+        const isServerExists = line.includes('SERVER_IS_HERE');
+        if (isClientExists) {
+          projectInfo.clientExists = true;
+        }
+
+        if (isServerExists) {
+          projectInfo.serverExists = true;
+        }
 
         if (isIncluded && !isExcluded) {
           const logObject = {
@@ -94,7 +108,6 @@ export const runBuildContainer = async (projectInfo: any) => {
     });
 
     const waitAMin = await container.wait();
-    console.log('checking for wait', waitAMin.StatusCode);
     await container.remove();
 
     if (waitAMin.StatusCode !== 0) {
@@ -105,23 +118,27 @@ export const runBuildContainer = async (projectInfo: any) => {
     const findProject = await Project.findOne({
       project_url: projectInfo.projectLink,
     });
+    console.log('projectInfo>>>>>', projectInfo);
     if (findProject) {
+      console.log('Project already exists, updating...??????????????????');
       SocketProvider.emitEvent(projectInfo.userId, 'build_status', true);
       await Project.updateMany(
         { project_url: projectInfo.projectLink },
         {
           serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
           env: projectInfo.envVariables,
-          clientDomain:
-            projectInfo.username.toLowerCase() +
-            '-' +
-            projectInfo.projectName.toLowerCase() +
-            '-client',
-          serverDomain:
-            projectInfo.username.toLowerCase() +
-            '-' +
-            projectInfo.projectName.toLowerCase() +
-            '-server',
+          clientDomain: projectInfo.clientExists
+            ? projectInfo.username.toLowerCase() +
+              '-' +
+              projectInfo.projectName.toLowerCase() +
+              '-client'
+            : null,
+          serverDomain: projectInfo.serverExists
+            ? projectInfo.username.toLowerCase() +
+              '-' +
+              projectInfo.projectName.toLowerCase() +
+              '-server'
+            : null,
         }
       );
       const containerName =
@@ -152,16 +169,18 @@ export const runBuildContainer = async (projectInfo: any) => {
         project_url: projectInfo.projectLink,
         serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
         env: projectInfo.envVariables,
-        clientDomain:
-          projectInfo.username.toLowerCase() +
-          '-' +
-          projectInfo.projectName.toLowerCase() +
-          '-client',
-        serverDomain:
-          projectInfo.username.toLowerCase() +
-          '-' +
-          projectInfo.projectName.toLowerCase() +
-          '-server',
+        clientDomain: projectInfo.clientExists
+          ? projectInfo.username.toLowerCase() +
+            '-' +
+            projectInfo.projectName.toLowerCase() +
+            '-client'
+          : null,
+        serverDomain: projectInfo.serverExists
+          ? projectInfo.username.toLowerCase() +
+            '-' +
+            projectInfo.projectName.toLowerCase() +
+            '-server'
+          : null,
       });
       const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}`;
       await fetch(BASE_PATH);

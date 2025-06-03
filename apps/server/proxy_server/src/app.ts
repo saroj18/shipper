@@ -46,10 +46,11 @@ app.use(async (req, res) => {
     const project = await Project.findOne({
       clientDomain: { $regex: `^${subdomain}$`, $options: 'i' },
     });
+    console.log('project', project);
 
     if (!project) {
       console.log('error');
-      const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/`;
+      const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/`
       req.url = '/error.html';
 
       return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
@@ -62,7 +63,7 @@ app.use(async (req, res) => {
     }
 
     if (req.url == '/') {
-      req.url = '/index.html'
+      req.url = '/index.html';
     }
 
     return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });

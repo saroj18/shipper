@@ -1,20 +1,10 @@
-import { ApiResponse, asyncHandler } from '@repo/utils';
+import { ApiError, ApiResponse, asyncHandler } from '@repo/utils';
 import { queue } from '../app.js';
 import { User } from '@repo/database/models/user.model.js';
+import { Project } from '@repo/database/models/project.model.js';
 
 export const projectConfigHandler = asyncHandler(async (req, resp) => {
-  const {
-    projectName,
-    configFileLocation,
-    techStack,
-    buildCommand,
-    startCommand,
-    installCommand,
-    outputDirectory,
-    envVariables,
-    projectLink,
-  } = req.body;
-  console.log('envVariables', envVariables);
+  const { projectLink } = req.body;
 
   const userId = req.user as string;
 
@@ -29,9 +19,23 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
       ...req.body,
       projectLink: finalRepoUrl,
       username: user?.username,
-      envVariables,
       userId,
     })
   );
+
   resp.status(200).json(new ApiResponse('Project Config Created', 200, req.body));
+});
+
+export const getProjectInfo = asyncHandler(async (req, resp) => {
+  const { payload } = req.query;
+
+  const project = await Project.findOne({
+    project_url: { $regex: payload, $options: 'i' },
+  });
+
+  if (!project) {
+    throw new ApiError('Project not found', 404);
+  }
+
+  resp.status(200).json(new ApiResponse('Project Info', 200, project));
 });

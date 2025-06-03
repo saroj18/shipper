@@ -7,8 +7,9 @@ export const app = express();
 app.get('/start-server', async (req, resp) => {
   try {
     const { image, flag, env } = req.query;
-    console.log('image', image);
-    const envVariables = generateEnvVariables(env as { key: string; value: string }[]);
+    const envVariables = generateEnvVariables(
+      env as { key: string; value: string }[]
+    );
 
     if (!image) {
       throw new Error('flag is required');

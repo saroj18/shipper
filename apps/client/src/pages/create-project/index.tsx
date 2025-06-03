@@ -5,12 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-
-import BuildSection from './components/build-section';
 import EnvSection from './components/env.section';
 import BuildLogs from '../build-logs';
-import TechStackSelector from './components/tech-stack-selector';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { userGithubSingleRepo } from '@/api/github';
 import { useMutation } from '@tanstack/react-query';
 import { deployProject } from '@/api/project';
@@ -18,12 +15,6 @@ import { socket } from '@/socket';
 
 export type ProjectInfoType = {
   projectName: string;
-  configFileLocation: string;
-  techStack: string;
-  buildCommand: string;
-  startCommand: string;
-  installCommand: string;
-  outputDirectory: string;
   envVariables: { key: string; value: string }[];
   projectLink: string;
 };
@@ -40,20 +31,15 @@ const CreateProject = () => {
   });
   const [build, setBuild] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   console.log('build', build);
 
   const repoName = useParams().repoName as string;
-  const { data: repo, isLoading } = userGithubSingleRepo(repoName);
+  const { data: repo } = userGithubSingleRepo(repoName);
 
   const [projectInfo, setProjectInfo] = useState<ProjectInfoType>({
     projectName: repoName,
-    configFileLocation: './',
-    techStack: '',
-    buildCommand: '',
-    startCommand: '',
-    installCommand: '',
-    outputDirectory: '',
     envVariables: [],
     projectLink: '',
   });
@@ -71,7 +57,6 @@ const CreateProject = () => {
     setLoading(true);
     mutate(projectInfo);
   };
-
   useEffect(() => {
     if (repo) {
       setProjectInfo((prv) => {
@@ -93,6 +78,14 @@ const CreateProject = () => {
       socket.off('build_status');
     };
   }, []);
+
+  useEffect(() => {
+    if (build) {
+      const info = repo?.data.html_url.split('/');
+
+      navigate(`/project-dashboard/?payload=${encodeURIComponent(info?.[3] + '/' + info?.[4])}`);
+    }
+  }, [build]);
 
   return (
     <>
@@ -135,23 +128,6 @@ const CreateProject = () => {
 
             <Separator className="bg-[#333]" />
 
-            <TechStackSelector projectInfo={projectInfo} setProjectInfo={setProjectInfo} />
-
-            <div className="space-y-2">
-              <Label htmlFor="root-dir" className="text-gray-400 text-sm">
-                Config File Location
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="root-dir"
-                  name="configFileLocation"
-                  value={projectInfo.configFileLocation}
-                  onChange={changeHandler}
-                  className="bg-[#1a1a1a] h-12 border-[#333] focus:border-gray-500 focus:ring-0"
-                />
-              </div>
-            </div>
-            <BuildSection projectInfo={projectInfo} setProjectInfo={setProjectInfo} />
             <EnvSection projectInfo={projectInfo} setProjectInfo={setProjectInfo} />
             <Button
               disabled={loading}
@@ -163,7 +139,7 @@ const CreateProject = () => {
           </CardContent>
         </Card>
       </div>
-      <BuildLogs />
+      <BuildLogs projectUrl={repo?.data.html_url as string} />
     </>
   );
 };

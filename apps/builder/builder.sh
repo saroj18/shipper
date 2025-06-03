@@ -50,7 +50,7 @@ fi
 }
 
 if [ "$CLIENT_PATH" == "client" ]; then
-
+echo "CLIENT_IS_HERE"
 # goes on client directory
 
 cd /home/app/output/$CLIENT_PATH || {
@@ -71,7 +71,7 @@ fi
 
 
 # Install dependencies
-if [ -n "$INSTALL_COMMAND" ]; then
+if [ -n "$INSTALL_COMMAND" ] && [ "$INSTALL_COMMAND" != "undefined" ]; then
   echo "🔧 Running install command: $INSTALL_COMMAND"
   eval "$INSTALL_COMMAND" 2>&1 | sed 's/^/[INSTALL] /' || {
     echo "[ERROR] ❌ Install command failed"
@@ -93,7 +93,7 @@ fi
 
 
 # Build the project
-if [ -n "$BUILD_COMMAND" ]; then
+if [ -n "$BUILD_COMMAND" ] && [ "$BUILD_COMMAND" != "undefined" ]; then
   echo "🔧 Running build command: $BUILD_COMMAND"
   eval "$BUILD_COMMAND" 2>&1 | sed 's/^/[BUILD] /' || {
     echo "[ERROR] ❌ build command failed"
@@ -114,23 +114,22 @@ else
 fi
 
 # Check if the build folder exists
-if [ ! -d "$OUTPUT_DIRECTORY" ]; then
-  echo "[ERROR] ❌ Build failed: $OUTPUT_DIRECTORY folder not found"
-elif [ ! -d "$CLIENT_OUTPUT_DIR" ]; then
-  echo "[ERROR] ❌ Build failed: $CLIENT_OUTPUT_DIR folder not found"
+if [ -d "$OUTPUT_DIRECTORY" ] && [ "$OUTPUT_DIRECTORY" != "undefined" ]; then
+  echo "[INFO] ✅ Build directory found: $OUTPUT_DIRECTORY"
+elif [ -d "$CLIENT_OUTPUT_DIR" ] && [ "$CLIENT_OUTPUT_DIR" != "undefined" ]; then
+  echo "[INFO] ✅ Build directory found: $CLIENT_OUTPUT_DIR"
 else
-  echo "[ERROR] ❌ Build failed: output directory not folder not found"
+  echo "[ERROR] ❌ Build failed: No valid output directory found"
   exit 1
 fi
 
 
-if [ -d "$OUTPUT_DIRECTORY" ]; then
+if [ -d "$OUTPUT_DIRECTORY" ] && [ "$OUTPUT_DIRECTORY" != "undefined" ]; then
   aws s3 cp --region ap-south-1 --recursive "$OUTPUT_DIRECTORY" s3://$S3_CLIENT_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
-elif [ -d "$CLIENT_OUTPUT_DIR" ]; then
+elif [ -d "$CLIENT_OUTPUT_DIR" ] && [ "$CLIENT_OUTPUT_DIR" != "undefined" ]; then
   aws s3 cp --region ap-south-1 --recursive "$CLIENT_OUTPUT_DIR" s3://$S3_CLIENT_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
 else
-  echo "[ERROR] ❌ Build failed: output directory not found"
-  exit 1
+  aws s3 cp --region ap-south-1 --recursive dist s3://$S3_CLIENT_BUCKET_NAME/$USER_PROJECT_IDENTITY/client
 fi
 fi
 
@@ -138,6 +137,7 @@ fi
 
 if [[ "$SERVER_PATH" == "server" ]]; then
 
+echo "SERVER_IS_HERE"
 # goes on server directory
 cd /home/app/output/$SERVER_PATH || {
   echo "[ERROR] ❌ Failed to change directory to server"

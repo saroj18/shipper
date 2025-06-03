@@ -21,9 +21,25 @@ export type SingleRepoType = {
   data: RepoType;
 };
 
+export type UserType = {
+  username: string;
+  id: string;
+  email: string;
+};
 
-export type UserType={
-    username:string;
-    id:string;
-    email:string;
-}
+export type Project = {
+  name: string;
+  createdBy: string;
+  project_url: string;
+  serverDomain: string;
+  clientDomain: string;
+  serverDockerImage: string;
+  env: [
+    {
+      key: string;
+      value: string;
+    },
+  ];
+  createdAt: Date;
+  updatedAt: Date;
+};

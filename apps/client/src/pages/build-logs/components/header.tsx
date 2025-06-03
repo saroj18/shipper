@@ -2,7 +2,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
 
-const Header = ({ build }: { build: boolean }) => {
+const Header = ({ build, projectUrl }: { build: boolean; projectUrl: string }) => {
+  const info = projectUrl.split('/');
   return (
     <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950">
       <div className="flex items-center gap-2">
@@ -12,7 +13,7 @@ const Header = ({ build }: { build: boolean }) => {
           Live
         </Badge>
       </div>
-      <Link to={'/project-dashboard'}>
+      <Link to={'/project-dashboard/' + '?payload=' + encodeURIComponent(info[3] + '/' + info[4])}>
         {build && <Button disabled={build}>Go to Dashboard</Button>}
       </Link>
     </div>
