@@ -11,6 +11,11 @@ export const app = express();
 export const server = http.createServer(app);
 const proxy = httpProxy.createProxy();
 
+proxy.on('error', (err, req, resp) => {
+  console.log('Proxy error:', err);
+  resp.end('Something went wrong while proxying the request. please try again later.');
+});
+
 app.use(async (req, res) => {
   const hostname = req.hostname;
   const subdomain = hostname.split('.')[0];
@@ -50,7 +55,7 @@ app.use(async (req, res) => {
 
     if (!project) {
       console.log('error');
-      const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/`
+      const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/`;
       req.url = '/error.html';
 
       return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });

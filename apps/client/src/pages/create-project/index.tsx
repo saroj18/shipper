@@ -28,6 +28,14 @@ const CreateProject = () => {
     onError: (error) => {
       console.error('Error creating user:', error);
     },
+    onSettled: () => {
+      const timeout = setTimeout(() => {
+        setLoading(false);
+        console.error('Request timed out after 30 seconds.');
+      }, 30000);
+
+      return () => clearTimeout(timeout);
+    },
   });
   const [build, setBuild] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);

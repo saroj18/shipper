@@ -3,6 +3,7 @@ import { getEcrAuth } from './utils/checkAuth.js';
 import { checkPort } from './utils/checkPort.js';
 import { CacheProvider } from '@repo/redis';
 import { envExtrator } from './utils/env.extrator.js';
+import { SocketProvider } from '@repo/socket';
 
 const docker = new Docker();
 
@@ -47,9 +48,7 @@ const pullImage = async (image: string): Promise<void> => {
 export const runServerInsideContainer = async (image: string, flag: string, env: any) => {
   const [createdBy, projectName] = flag.split('-');
   const containerName = `${createdBy}-${projectName}-server`.toLocaleLowerCase();
-  // const envData = envExtrator(env);
-  // console.log('envData>>>>>', envData);
-  // const PORT = envData.includes('PORT').split('=')[1];
+
   try {
     const exists = await imageExistsLocally(image);
     if (!exists) {
@@ -79,18 +78,21 @@ export const runServerInsideContainer = async (image: string, flag: string, env:
 
       await container.remove();
     }
-    const port = await checkPort(3000);
-    console.log('port', port);
+    const lines = env.trim().split('\n');
+    const envMap = Object.fromEntries(lines.map((line: string) => line.split('=')));
+    
+    const userPort = envMap.PORT;
+    const port = await checkPort(Number(userPort));
 
     const container = await docker.createContainer({
       Image: image,
       name: containerName,
       ExposedPorts: {
-        [`3000/tcp`]: {},
+        [`${userPort}/tcp`]: {},
       },
       HostConfig: {
         PortBindings: {
-          [`3000/tcp`]: [
+          [`${userPort}/tcp`]: [
             {
               HostIp: '0.0.0.0',
               HostPort: port.toString(),
@@ -108,7 +110,7 @@ export const runServerInsideContainer = async (image: string, flag: string, env:
         `START_COMMAND=${process.env.START_COMMAND}`,
         `INSTALL_COMMAND=${process.env.INSTALL_COMMAND}`,
         `OUTPUT_DIRECTORY=${process.env.OUTPUT_DIRECTORY}`,
-        // ...envData,
+        env,
       ],
     });
 
@@ -123,6 +125,7 @@ export const runServerInsideContainer = async (image: string, flag: string, env:
         container_port: existingContainer?.Ports[0].PrivatePort,
         ip: existingContainer?.Ports[0].IP,
         container_host_url: `http://localhost/${existingContainer?.Ports[0].PublicPort}`,
+        userId: createdBy,
       })
     );
 
@@ -132,8 +135,9 @@ export const runServerInsideContainer = async (image: string, flag: string, env:
       stdout: true,
       stderr: true,
     });
+
     logStream.on('data', (chunk) => {
-      console.log(`[Logs - ${containerName}]`, chunk.toString('utf8'));
+      console.log(chunk.toString('utf8'));
     });
 
     return {

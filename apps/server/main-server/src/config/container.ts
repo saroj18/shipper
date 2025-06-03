@@ -5,6 +5,7 @@ config();
 import { CacheProvider } from '@repo/redis';
 import { SocketProvider } from '@repo/socket';
 import { envExtrator } from './env.extractor.js';
+import { getEcrAuth } from './checkAuth.js';
 
 const INCLUDE_KEYWORDS = [
   'npm install',
@@ -31,11 +32,56 @@ const EXCLUDE_KEYWORDS = [
   'Digest:',
   'Status: Downloaded',
 ];
+const docker = new Docker();
+const imageExistsLocally = async (image: string): Promise<boolean> => {
+  const images = await docker.listImages();
+  return images.some((img) => {
+    return img.RepoTags?.includes(image);
+  });
+};
+
+const pullImage = async (image: string): Promise<void> => {
+  const { username, password, serveraddress } = await getEcrAuth();
+
+  return new Promise((resolve, reject) => {
+    docker.pull(
+      image,
+      {
+        authconfig: {
+          username,
+          password,
+          serveraddress,
+        },
+      },
+      (err: any, stream: any) => {
+        if (err) return reject(err);
+
+        docker.modem.followProgress(stream, onFinished, onProgress);
+
+        function onFinished(err: any) {
+          if (err) return reject(err);
+          resolve();
+        }
+
+        function onProgress(event: any) {
+          if (event.status) console.log(`[Docker Pull] ${event.status}`);
+        }
+      }
+    );
+  });
+};
 
 export const runBuildContainer = async (projectInfo: any) => {
-  const docker = new Docker();
   // const env = envExtrator(projectInfo.envVariables);
   // console.log("env>>>>>", env);
+  const exists = await imageExistsLocally(
+    '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1'
+  );
+  if (!exists) {
+    await getEcrAuth();
+    await pullImage('730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1');
+  }
+
   try {
     const container = await docker.createContainer({
       Image: '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1',
@@ -159,7 +205,7 @@ export const runBuildContainer = async (projectInfo: any) => {
         `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`
       );
       await image.remove();
-      const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}`;
+      const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}&&userId=${projectInfo.userId}`;
       await fetch(BASE_PATH);
     } else {
       SocketProvider.emitEvent(projectInfo.userId, 'build_status', true);
@@ -182,7 +228,7 @@ export const runBuildContainer = async (projectInfo: any) => {
             '-server'
           : null,
       });
-      const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}`;
+      const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}&&userId=${projectInfo.userId}`;
       await fetch(BASE_PATH);
     }
   } catch (error: any) {

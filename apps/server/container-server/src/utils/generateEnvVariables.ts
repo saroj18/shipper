@@ -1,3 +1,3 @@
-export const generateEnvVariables = (env: any): string => {
-  return [env].map(({ key, value }) => `${key}='${value}'`).join('\n');
+export const generateEnvVariables = (env: { key: string; value: string }[]): string => {
+  return env.map(({ key, value }) => `${key}=${value}`).join('\n');
 };
