@@ -2,8 +2,10 @@ import express from 'express';
 import { runServerInsideContainer, stopServerInsideContainer } from './container.js';
 import { generateEnvVariables } from './utils/generateEnvVariables.js';
 import { Project } from '@repo/database/models/project.model.js';
+import http from 'http';
 
 export const app = express();
+export const server=http.createServer(app);
 
 app.get('/start-server', async (req, resp) => {
   try {
@@ -24,7 +26,8 @@ app.get('/start-server', async (req, resp) => {
     const containerInfo = await runServerInsideContainer(
       image as string,
       flag as string,
-      envVariables
+      envVariables,
+      userId as string
     );
     resp.json({ message: 'Now your server is live please do refresh again' });
   } catch (error: any) {

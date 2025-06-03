@@ -45,7 +45,12 @@ const pullImage = async (image: string): Promise<void> => {
   });
 };
 
-export const runServerInsideContainer = async (image: string, flag: string, env: any) => {
+export const runServerInsideContainer = async (
+  image: string,
+  flag: string,
+  env: any,
+  userId: string
+) => {
   const [createdBy, projectName] = flag.split('-');
   const containerName = `${createdBy}-${projectName}-server`.toLocaleLowerCase();
 
@@ -80,7 +85,7 @@ export const runServerInsideContainer = async (image: string, flag: string, env:
     }
     const lines = env.trim().split('\n');
     const envMap = Object.fromEntries(lines.map((line: string) => line.split('=')));
-    
+
     const userPort = envMap.PORT;
     const port = await checkPort(Number(userPort));
 
@@ -125,7 +130,7 @@ export const runServerInsideContainer = async (image: string, flag: string, env:
         container_port: existingContainer?.Ports[0].PrivatePort,
         ip: existingContainer?.Ports[0].IP,
         container_host_url: `http://localhost/${existingContainer?.Ports[0].PublicPort}`,
-        userId: createdBy,
+        userId,
       })
     );
 
@@ -135,9 +140,28 @@ export const runServerInsideContainer = async (image: string, flag: string, env:
       stdout: true,
       stderr: true,
     });
+    const dockerContainer = docker.getContainer(container.id);
+    const data = await dockerContainer.inspect();
 
-    logStream.on('data', (chunk) => {
-      console.log(chunk.toString('utf8'));
+    logStream.on('data', async (chunk) => {
+      console.log('>>>>>', chunk.toString('utf8'));
+      const contName = data?.Name?.split('/')?.[1];
+      if (!contName) {
+        console.warn(`[warn] Missing container name from inspect`);
+        return;
+      }
+
+      const infoRaw = await CacheProvider.getDataFromCache(contName);
+
+      if (!infoRaw) {
+        console.warn(`[warn] Cache not ready for ${contName}`);
+        return; // 🛑 prevent crash
+      }
+
+      const info = typeof infoRaw === 'string' ? JSON.parse(infoRaw) : infoRaw;
+
+      console.log('info>>>>>', info);
+      SocketProvider.emitEvent(info.userId, 'server_logs', chunk.toString('utf8'));
     });
 
     return {
