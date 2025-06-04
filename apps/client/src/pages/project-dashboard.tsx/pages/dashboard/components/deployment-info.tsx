@@ -1,14 +1,13 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { CheckCircle, Clock, Copy, ExternalLink, GitBranch, GitCommit } from 'lucide-react';
+import { CheckCircle, Clock, Copy, ExternalLink } from 'lucide-react';
 
 type DeploymentInfoProps = {
   clientDomain: string;
   serverDomain: string;
   createdAt: Date;
   createdBy: string;
-  status: 'ready' | 'building' | 'error';
+  status: 'running' | 'stopped' | 'error';
 };
 
 const DeploymentInfo = ({
@@ -16,6 +15,7 @@ const DeploymentInfo = ({
   serverDomain,
   createdAt,
   createdBy,
+  status
 }: DeploymentInfoProps) => {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text + `${import.meta.env.VITE_DOMAIN}`);
@@ -120,16 +120,16 @@ const DeploymentInfo = ({
         <div>
           <h3 className="text-sm font-medium text-zinc-400 mb-2">Status</h3>
           <div className="flex items-center gap-2">
-            {status === 'ready' && (
+            {status === 'running' && (
               <>
                 <CheckCircle className="h-4 w-4 text-emerald-500" />
-                <span className="text-sm">Ready</span>
+                <span className="text-sm">Running</span>
               </>
             )}
-            {status === 'building' && (
+            {status === 'stopped' && (
               <>
                 <div className="h-4 w-4 rounded-full border-2 border-t-transparent border-blue-500 animate-spin"></div>
-                <span className="text-sm">Building</span>
+                <span className="text-sm">Stopped</span>
               </>
             )}
             {status === 'error' && (

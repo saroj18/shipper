@@ -3,22 +3,29 @@ import { runServerInsideContainer, stopServerInsideContainer } from './container
 import { generateEnvVariables } from './utils/generateEnvVariables.js';
 import { Project } from '@repo/database/models/project.model.js';
 import http from 'http';
+import { CacheProvider } from '@repo/redis';
+import cors from 'cors';
 
 export const app = express();
-export const server=http.createServer(app);
+export const server = http.createServer(app);
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
+  })
+);
 
 app.get('/start-server', async (req, resp) => {
   try {
-    const { image, flag, env, userId } = req.query;
+    const { image, flag, userId } = req.query;
     const project = await Project.findOne({ serverDockerImage: image });
 
     if (!project) {
       throw new Error('Project not found');
     }
-    console.log('env??????', project.env);
 
     const envVariables = generateEnvVariables(project.env as { key: string; value: string }[]);
-    console.log('envVariables>>>???', envVariables);
 
     if (!image) {
       throw new Error('flag is required');
@@ -29,6 +36,11 @@ app.get('/start-server', async (req, resp) => {
       envVariables,
       userId as string
     );
+    await Project.updateOne(
+      { serverDockerImage: image },
+      { serverStatus: 'running' }
+    );
+
     resp.json({ message: 'Now your server is live please do refresh again' });
   } catch (error: any) {
     resp.status(400).send({ message: error.message });
@@ -37,13 +49,25 @@ app.get('/start-server', async (req, resp) => {
 
 app.get('/stop-server', async (req, resp) => {
   try {
-    const { containerId } = req.query;
+    const { containerName, name } = req.query;
+
+    const { containerId } = JSON.parse(
+      await CacheProvider.getDataFromCache(containerName as string)
+    );
+    console.log('containerId:', name);
 
     if (!containerId) {
-      throw new Error('containerName is required');
+      throw new Error('containerid is required');
     }
 
     await stopServerInsideContainer(containerId as string);
+    await CacheProvider.deleteFromCache(containerName as string);
+    await Project.updateOne(
+      { name },
+      {
+        serverStatus: 'stopped',
+      }
+    );
 
     resp.status(200).send({
       message: 'Container stopped and removed successfully',

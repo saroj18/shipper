@@ -7,6 +7,8 @@ interface ProjectSchemaType extends Document {
   serverDomain: string;
   clientDomain: string;
   serverDockerImage: string;
+  serverStatus: 'running' | 'stopped' | 'error';
+  containerId: string | null;
   env: [
     {
       key: string;
@@ -46,6 +48,16 @@ const ProjectSchema = new Schema<ProjectSchemaType>(
     },
     serverDockerImage: {
       type: String,
+      trim: true,
+      default: null,
+    },
+    serverStatus:{
+      type: String,
+      enum: ['running', 'stopped', 'error'],
+      default: 'stopped',
+    },
+    containerId:{
+      type:String,
       trim: true,
       default: null,
     },

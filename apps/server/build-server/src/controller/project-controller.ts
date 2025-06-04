@@ -2,6 +2,7 @@ import { ApiError, ApiResponse, asyncHandler } from '@repo/utils';
 import { queue } from '../app.js';
 import { User } from '@repo/database/models/user.model.js';
 import { Project } from '@repo/database/models/project.model.js';
+import { CacheProvider } from '@repo/redis';
 
 export const projectConfigHandler = asyncHandler(async (req, resp) => {
   const { projectLink } = req.body;
@@ -62,6 +63,18 @@ export const deleteProject = asyncHandler(async (req, resp) => {
   if (!project) {
     throw new ApiError('Project not found', 404);
   }
+  const containerName = `${payload[0]}-${payload[1]}-server`;
+
+  const { containerId } = JSON.parse(await CacheProvider.getDataFromCache(containerName as string));
+
+  if (!containerId) {
+    throw new Error('containerid is required');
+  }
+
+  (await queue).pushOnQueue(
+    'stop-server',
+    JSON.stringify({ containerId, containerName, name: payload[1] })
+  );
 
   resp.status(200).json(new ApiResponse('Project deleted successfully', 200, null));
 });

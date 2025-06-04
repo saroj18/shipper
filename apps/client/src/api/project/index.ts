@@ -2,6 +2,7 @@ import type { ProjectInfoType } from '@/pages/create-project';
 import { apiClient } from '..';
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
+import axios from 'axios';
 
 export const deployProject = async (projectInfo: ProjectInfoType) => {
   const { data } = await apiClient.post('/project/deploy', projectInfo);
@@ -17,6 +18,11 @@ export const deleteProject = async (id: string) => {
   console.log('sora');
   const payload = id.replace('/', '^');
   const { data } = await apiClient.delete(`/project/${payload}`);
+  return data;
+};
+
+export const stopServer = async (containerName: string) => {
+  const { data } = await axios.get(`http://localhost:10000/stop-server?containerName=${containerName}`);
   return data;
 };
 

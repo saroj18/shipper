@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { Pause, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Header from './components/header';
 import LogSection from './components/log-section';
 import DeploymentInfo from './components/deployment-info';
 
-import { useProjectInfo } from '@/api/project';
+import { stopServer, useProjectInfo } from '@/api/project';
 import type { Project } from '@/api/types';
 import Loader from '@/components/loader';
 import { useParams } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const ProjectDashboard = ({}) => {
   const { payload } = useParams();
@@ -17,6 +19,20 @@ const ProjectDashboard = ({}) => {
   const { data: info, isLoading } = useProjectInfo<{ data: Project; isLoading: boolean }>(
     payload as string
   );
+  const { mutate } = useMutation({
+    mutationFn: (containerName: string) => stopServer(containerName),
+    onSuccess: (data) => {
+      toast.success('Server stopped successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to stop server');
+    },
+  });
+
+  const serverStopHandler = async (containerName: string) => {
+    console.log('Stopping server for container:', containerName);
+    mutate(containerName);
+  };
 
   return isLoading ? (
     <Loader />
@@ -31,15 +47,17 @@ const ProjectDashboard = ({}) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
+                    onClick={() =>
+                      serverStopHandler(`${info?.data.createdBy}-${info?.data.name}-server`)
+                    }
                     size="icon"
-                    className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800"
+                    className="bg-red-500 w-fit px-3"
                   >
-                    <RotateCcw className="h-4 w-4" />
+                    Stop Server
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="bg-zinc-900 border-zinc-700">
-                  <p>Instant Rollback</p>
+                  <p>Stop Server</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -66,7 +84,7 @@ const ProjectDashboard = ({}) => {
             serverDomain={
               typeof info?.data?.serverDomain === 'string' ? info.data.serverDomain : ''
             }
-            status={'ready'}
+            status={info?.data.serverStatus as 'running' | 'stopped' | 'error'}
           />
         </div>
 

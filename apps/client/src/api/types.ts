@@ -40,6 +40,7 @@ export type Project = {
       value: string;
     },
   ];
+  serverStatus: 'running' | 'stopped' | 'error';
   createdAt: Date;
   updatedAt: Date;
 };
