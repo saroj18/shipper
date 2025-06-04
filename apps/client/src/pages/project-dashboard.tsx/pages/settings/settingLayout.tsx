@@ -1,5 +1,5 @@
-import { Outlet } from "react-router";
-import Sidebar from "./components/sidebar";
+import { Outlet } from 'react-router';
+import Sidebar from './components/sidebar';
 
 const SettingLayout = () => {
   return (

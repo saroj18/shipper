@@ -39,3 +39,29 @@ export const getProjectInfo = asyncHandler(async (req, resp) => {
 
   resp.status(200).json(new ApiResponse('Project Info', 200, project));
 });
+
+export const getAllProjects = asyncHandler(async (req, resp) => {
+  const userId = req.user as string;
+  const user = await User.findByPk(userId);
+
+  if (!user) {
+    throw new ApiError('User not found', 404);
+  }
+
+  const projects = await Project.find({ createdBy: user.username });
+
+  resp.status(200).json(new ApiResponse('All Projects', 200, projects));
+});
+
+export const deleteProject = asyncHandler(async (req, resp) => {
+  const { id } = req.params;
+  const payload = id.split('^');
+
+  const project = await Project.findOneAndDelete({ name: payload[1], createdBy: payload[0] });
+
+  if (!project) {
+    throw new ApiError('Project not found', 404);
+  }
+
+  resp.status(200).json(new ApiResponse('Project deleted successfully', 200, null));
+});

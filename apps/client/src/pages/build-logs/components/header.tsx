@@ -13,7 +13,7 @@ const Header = ({ build, projectUrl }: { build: boolean; projectUrl: string }) =
           Live
         </Badge>
       </div>
-      <Link to={'/project-dashboard/' + '?payload=' + encodeURIComponent(info[3] + '/' + info[4])}>
+      <Link to={'/project-dashboard/' + encodeURIComponent(info[3] + '/' + info[4])}>
         {build && <Button disabled={build}>Go to Dashboard</Button>}
       </Link>
     </div>

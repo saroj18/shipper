@@ -9,11 +9,10 @@ import DeploymentInfo from './components/deployment-info';
 import { useProjectInfo } from '@/api/project';
 import type { Project } from '@/api/types';
 import Loader from '@/components/loader';
-import { useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const ProjectDashboard = ({}) => {
-  const [searchParams] = useSearchParams();
-  const payload = searchParams.get('payload');
+  const { payload } = useParams();
   const [activeTab, setActiveTab] = useState('build-logs');
   const { data: info, isLoading } = useProjectInfo<{ data: Project; isLoading: boolean }>(
     payload as string
@@ -61,8 +60,12 @@ const ProjectDashboard = ({}) => {
           <DeploymentInfo
             createdAt={info?.data?.createdAt as Date}
             createdBy={info?.data?.createdBy as string}
-            clientDomain={typeof info?.data?.clientDomain === 'string' ? info.data.clientDomain : ''}
-            serverDomain={typeof info?.data?.serverDomain === 'string' ? info.data.serverDomain : ''}
+            clientDomain={
+              typeof info?.data?.clientDomain === 'string' ? info.data.clientDomain : ''
+            }
+            serverDomain={
+              typeof info?.data?.serverDomain === 'string' ? info.data.serverDomain : ''
+            }
             status={'ready'}
           />
         </div>

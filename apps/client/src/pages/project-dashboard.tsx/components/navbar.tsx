@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router";
-import { cn } from "@/lib/utils";
+import { useState } from 'react';
+import { Link } from 'react-router';
+import { cn } from '@/lib/utils';
 
 interface NavItem {
   label: string;
@@ -12,13 +12,13 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeItem }: NavbarProps) => {
-  const [active, setActive] = useState(activeItem || "Analytics");
+  const [active, setActive] = useState(activeItem || 'Analytics');
 
   const navItems: NavItem[] = [
-    { label: "Project", href: "/project-dashboard" },
-    { label: "Deployments", href: "deployment" },
-    { label: "Logs", href: "logs" },
-    { label: "Settings", href: "settings" },
+    { label: 'Project', href: '' },
+    { label: 'Deployments', href: 'deployment' },
+    { label: 'Logs', href: 'logs' },
+    { label: 'Settings', href: 'settings' },
   ];
 
   return (
@@ -30,10 +30,8 @@ const Navbar = ({ activeItem }: NavbarProps) => {
               key={item.label}
               to={item.href}
               className={cn(
-                "px-4 py-4 text-lg font-medium whitespace-nowrap transition-colors relative",
-                active === item.label
-                  ? "text-white"
-                  : "text-zinc-400 hover:text-zinc-200"
+                'px-4 py-4 text-lg font-medium whitespace-nowrap transition-colors relative',
+                active === item.label ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               )}
               onClick={() => setActive(item.label)}
             >

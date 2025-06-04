@@ -56,7 +56,6 @@ const DeploymentInfo = ({
             <p className="text-sm text-zinc-300">
               {clientDomain + `${import.meta.env.VITE_DOMAIN}`}
             </p>
-            <Badge className="bg-zinc-800 text-zinc-400 hover:bg-zinc-700">+2</Badge>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -74,7 +73,12 @@ const DeploymentInfo = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <ExternalLink className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300" />
+            <ExternalLink
+              onClick={() =>
+                window.open('http://' + clientDomain + import.meta.env.VITE_DOMAIN, '_blank')
+              }
+              className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300"
+            />
           </div>
         </div>
       )}
@@ -85,7 +89,6 @@ const DeploymentInfo = ({
             <p className="text-sm text-zinc-300">
               {serverDomain + `${import.meta.env.VITE_DOMAIN}`}
             </p>
-            <Badge className="bg-zinc-800 text-zinc-400 hover:bg-zinc-700">+2</Badge>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -103,7 +106,12 @@ const DeploymentInfo = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <ExternalLink className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300" />
+            <ExternalLink
+              onClick={() =>
+                window.open('http://' + serverDomain + import.meta.env.VITE_DOMAIN, '_blank')
+              }
+              className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300"
+            />
           </div>
         </div>
       )}

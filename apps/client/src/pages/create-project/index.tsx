@@ -91,7 +91,7 @@ const CreateProject = () => {
     if (build) {
       const info = repo?.data.html_url.split('/');
 
-      navigate(`/project-dashboard/?payload=${encodeURIComponent(info?.[3] + '/' + info?.[4])}`);
+      navigate(`/project-dashboard/${encodeURIComponent(info?.[3] + '/' + info?.[4])}`);
     }
   }, [build]);
 

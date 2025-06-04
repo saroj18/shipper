@@ -1,9 +1,8 @@
-import { Link, useNavigate } from "react-router";
-import Logo from "./logo";
-import { Button } from "./ui/button";
-import { logoutUser } from "@/api/user";
-import { useUser } from "./context";
-import { LogOut, LogOutIcon } from "lucide-react";
+import { Link, useNavigate } from 'react-router';
+import Logo from './logo';
+import { logoutUser } from '@/api/user';
+import { useUser } from './context';
+import { LogOutIcon } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ const Navbar = () => {
   const logOutHandler = async () => {
     await logoutUser();
     setUser(undefined);
-    navigate("/");
+    navigate('/');
   };
   return (
     <header className="sticky top-0 z-40 w-full bg-white text-black">
@@ -54,14 +53,22 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-x-8">
+          <Link to={'/main'} className="py-3 px-10 rounded-lg font-semibold bg-amber-200 ">
+            Dashboard
+          </Link>
           <Link
-            to={"/addproject"}
+            to={'/addproject'}
             className="py-3 px-10 rounded-lg font-semibold  bg-black text-white"
           >
             Get Start
           </Link>
           {user && (
-            <LogOutIcon size={30} strokeWidth={4} className="cursor-pointer text-red-500 " onClick={logOutHandler} />
+            <LogOutIcon
+              size={30}
+              strokeWidth={3}
+              className="cursor-pointer text-red-500 "
+              onClick={logOutHandler}
+            />
           )}
         </div>
       </div>

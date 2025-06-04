@@ -16,6 +16,7 @@ import DeploymentLogs from './pages/project-dashboard.tsx/pages/logs/index.tsx';
 import ProtectedRoute from './components/protected-route.tsx';
 import PublicRoute from './components/public-route.tsx';
 import Loader from './components/loader.tsx';
+import { Toaster } from 'sonner';
 
 const router = createBrowserRouter([
   {
@@ -60,7 +61,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'project-dashboard',
+        path: 'project-dashboard/:payload',
         element: (
           <ProtectedRoute>
             <ProjectDashboardLayout />
@@ -85,13 +86,7 @@ const router = createBrowserRouter([
             children: [
               {
                 path: '',
-                element: (
-                  <ProjectSettings
-                    projectName="blog-crud-htg3"
-                    projectId="c85bde44"
-                    lastUpdated="6h ago"
-                  />
-                ),
+                element: <ProjectSettings />,
               },
               {
                 path: 'build-script',
@@ -111,9 +106,10 @@ const router = createBrowserRouter([
 ]);
 const App = () => {
   return (
-    <div>
+    < >
       <RouterProvider router={router} />
-    </div>
+      <Toaster />
+    </>
   );
 };
 

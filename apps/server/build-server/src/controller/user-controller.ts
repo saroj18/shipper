@@ -4,6 +4,7 @@ import { ENV } from "../ENV-Config.js";
 
 export const loginWithGitHub = asyncHandler(async (req, resp) => {
   const userInfo = (req as any).user;
+  console.log("userInfo", userInfo);
 
   const findUser = await User.findOne({
     where: {
