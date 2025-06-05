@@ -53,8 +53,11 @@ export class SocketProvider {
 
           socket.on('disconnect', async () => {
             console.log(`User ${userId} disconnected`);
+            if (!userId) return;
             const existingSocketId = await CacheProvider.getDataFromCache(userId);
+            console.log(`Existing socket ID for user ${userId}:`, existingSocketId);
             if (existingSocketId === socket.id) {
+              console.log(`Removing socket ${socket.id} for user ${userId}`);
               await CacheProvider.deleteFromCache(userId);
             }
           });
@@ -73,7 +76,9 @@ export class SocketProvider {
     event: string,
     callback: (data: any) => void
   ): Promise<void> {
+    if (!userId) return;
     const socketId = await CacheProvider.getDataFromCache(userId);
+    console.log(`Existing socket ID for user ${userId}:`);
     if (!socketId) throw new Error('Socket ID not found for user');
 
     const socket = this.instance.sockets.sockets.get(socketId);
@@ -83,7 +88,11 @@ export class SocketProvider {
   }
 
   public static async emitEvent(userId: string, event: string, payload: any): Promise<void> {
+    console.log('Emitting event:', event, 'to user:', userId);
+    if (!userId) return;
     const socketId = await CacheProvider.getDataFromCache(userId);
+    console.log('socketId:', socketId);
+    console.log(`Existing socket ID for user ${userId}:${socketId}`);
     if (!socketId) throw new Error('Socket ID not found for user');
 
     this.instance.to(socketId).emit(event, payload);

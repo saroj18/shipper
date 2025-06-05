@@ -44,7 +44,7 @@ app.use(async (req, res) => {
 
       return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
     }
-    const BASE_PATH = `http://localhost:10000/start-server?image=${project.serverDockerImage}&&flag=${project.createdBy}-${project.name}&&env=${project.env}`;
+    const BASE_PATH = `http://localhost:10000/start-server?image=${project.serverDockerImage}&&flag=${project.createdBy}-${project.name}&&env=${project.env}&&userId=${project.creatorId}`;
 
     return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
   } else {

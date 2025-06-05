@@ -34,6 +34,8 @@ export const getProjectInfo = asyncHandler(async (req, resp) => {
     project_url: { $regex: payload, $options: 'i' },
   });
 
+  console.log('project:', project);
+
   if (!project) {
     throw new ApiError('Project not found', 404);
   }
@@ -65,7 +67,18 @@ export const deleteProject = asyncHandler(async (req, resp) => {
   }
   const containerName = `${payload[0]}-${payload[1]}-server`;
 
-  const { containerId } = JSON.parse(await CacheProvider.getDataFromCache(containerName as string));
+  const cacheData = await CacheProvider.getDataFromCache(containerName as string);
+  if (!cacheData) {
+    await Project.deleteOne({ name: payload[1], createdBy: payload[0] });
+    resp.status(200).json(new ApiResponse('Project deleted successfully', 200, null));
+    return;
+  }
+  const info = cacheData ? JSON.parse(cacheData) : null;
+  if (!info) {
+    throw new ApiError('info not found', 404);
+  }
+
+  const { containerId } = info;
 
   if (!containerId) {
     throw new Error('containerid is required');

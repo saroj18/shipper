@@ -9,6 +9,7 @@ interface ProjectSchemaType extends Document {
   serverDockerImage: string;
   serverStatus: 'running' | 'stopped' | 'error';
   containerId: string | null;
+  creatorId: string;
   env: [
     {
       key: string;
@@ -51,13 +52,17 @@ const ProjectSchema = new Schema<ProjectSchemaType>(
       trim: true,
       default: null,
     },
-    serverStatus:{
+    serverStatus: {
       type: String,
       enum: ['running', 'stopped', 'error'],
       default: 'stopped',
     },
-    containerId:{
-      type:String,
+    creatorId: {
+      type: String,
+      required: true,
+    },
+    containerId: {
+      type: String,
       trim: true,
       default: null,
     },

@@ -2,21 +2,16 @@ import { server } from './app.js';
 import dotenv from 'dotenv';
 import { MongoDBConnection, MySQLConnection } from '@repo/database';
 import { ENV } from './ENV-Config.js';
+import { runQueueJob } from './worker.js';
 dotenv.config();
-
-// const dbConfig = {
-//   db_host: ENV.DB_HOST,
-//   db_user: ENV.DB_USER,
-//   db_password: ENV.DB_PASSWORD,
-//   db_name: ENV.DB_NAME,
-// };
 
 MySQLConnection.getInstance()
   .then(() => {
-    MongoDBConnection.getInstance().then(() => {
+    MongoDBConnection.getInstance().then(async () => {
       server.listen(ENV.PORT, () => {
         console.log('database and server started successfully at port', ENV.PORT);
       });
+      await runQueueJob();
     });
   })
   .catch((err: any) => {

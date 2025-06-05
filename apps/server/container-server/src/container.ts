@@ -4,6 +4,7 @@ import { checkPort } from './utils/checkPort.js';
 import { CacheProvider } from '@repo/redis';
 import { envExtrator } from './utils/env.extrator.js';
 import { SocketProvider } from '@repo/socket';
+import { Project } from '@repo/database/models/project.model.js';
 
 const docker = new Docker();
 
@@ -87,10 +88,10 @@ export const runServerInsideContainer = async (
     const envMap = Object.fromEntries(lines.map((line: string) => line.split('=')));
 
     const userPort = envMap.PORT;
-    const port = await checkPort(Number(userPort)||3000);
+    const port = await checkPort(Number(userPort) || 3000);
 
     const container = await docker.createContainer({
-      Image: image, 
+      Image: image,
       name: containerName,
       ExposedPorts: {
         [`${userPort}/tcp`]: {},
@@ -114,7 +115,7 @@ export const runServerInsideContainer = async (
         `BUILD_COMMAND=${process.env.BUILD_COMMAND}`,
         `START_COMMAND=${process.env.START_COMMAND}`,
         `INSTALL_COMMAND=${process.env.INSTALL_COMMAND}`,
-        `OUTPUT_DIRECTORY=${process.env.OUTPUT_DIRECTORY}`,                                           
+        `OUTPUT_DIRECTORY=${process.env.OUTPUT_DIRECTORY}`,
         env,
       ],
     });
@@ -140,29 +141,15 @@ export const runServerInsideContainer = async (
       stdout: true,
       stderr: true,
     });
-    const dockerContainer = docker.getContainer(container.id);
-    const data = await dockerContainer.inspect();
 
     logStream.on('data', async (chunk) => {
       console.log('>>>>>', chunk.toString('utf8'));
-      const contName = data?.Name?.split('/')?.[1];
-      if (!contName) {
-        console.warn(`[warn] Missing container name from inspect`);
-        return;
-      }
-
-      const infoRaw = await CacheProvider.getDataFromCache(contName);
-
-      if (!infoRaw) {
-        console.warn(`[warn] Cache not ready for ${contName}`);
-        return; // 🛑 prevent crash
-      }
-
-      const info = typeof infoRaw === 'string' ? JSON.parse(infoRaw) : infoRaw;
-
-      console.log('info>>>>>', info);
-      SocketProvider.emitEvent(info.userId, 'server_logs', chunk.toString('utf8'));
+      // SocketProvider.emitEvent(userId, 'server_logs', chunk.toString('utf8'));
     });
+    await Project.updateOne(
+      { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
+      { $set: { serverStatus: 'running' } }
+    );
 
     return {
       containerId: container.id,
@@ -172,12 +159,16 @@ export const runServerInsideContainer = async (
     };
   } catch (error: any) {
     console.error(`[Error] ${error.message}`);
+    SocketProvider.emitEvent(userId, 'server_logs', error.message || 'your server is not running');
+    await Project.updateOne(
+      { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
+      { $set: { serverStatus: 'stopped' } }
+    );
   }
 };
 
 export const stopServerInsideContainer = async (containerId: string) => {
   const container = docker.getContainer(containerId);
-  console.log('containerInfo:', container);
   await container.stop();
   await container.remove();
 };

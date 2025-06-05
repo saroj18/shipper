@@ -6,12 +6,13 @@ import Header from './components/header';
 import LogSection from './components/log-section';
 import DeploymentInfo from './components/deployment-info';
 
-import { stopServer, useProjectInfo } from '@/api/project';
+import { startServer, stopServer, useProjectInfo } from '@/api/project';
 import type { Project } from '@/api/types';
 import Loader from '@/components/loader';
 import { useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { queryClient } from '@/main';
 
 const ProjectDashboard = ({}) => {
   const { payload } = useParams();
@@ -19,19 +20,37 @@ const ProjectDashboard = ({}) => {
   const { data: info, isLoading } = useProjectInfo<{ data: Project; isLoading: boolean }>(
     payload as string
   );
-  const { mutate } = useMutation({
+  const { mutate, isPending: stopLoading } = useMutation({
     mutationFn: (containerName: string) => stopServer(containerName),
     onSuccess: (data) => {
       toast.success('Server stopped successfully');
+
+      queryClient.invalidateQueries({ queryKey: ['projectInfo', payload] });
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to stop server');
     },
   });
 
+  const { mutate: startMutate, isPending: startLoading } = useMutation({
+    mutationFn: (containerName: string) => startServer(containerName),
+    onSuccess: (data) => {
+      toast.success('Server Started successfully');
+
+      queryClient.invalidateQueries({ queryKey: ['projectInfo', payload] });
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to Start server');
+    },
+  });
+
   const serverStopHandler = async (containerName: string) => {
     console.log('Stopping server for container:', containerName);
     mutate(containerName);
+  };
+  const serverStartHandler = async (userId: string) => {
+    console.log('Stopping server for container:', userId);
+    startMutate(userId);
   };
 
   return isLoading ? (
@@ -46,15 +65,27 @@ const ProjectDashboard = ({}) => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    onClick={() =>
-                      serverStopHandler(`${info?.data.createdBy}-${info?.data.name}-server`)
-                    }
-                    size="icon"
-                    className="bg-red-500 w-fit px-3"
-                  >
-                    Stop Server
-                  </Button>
+                  {info?.data.serverStatus == 'running' ? (
+                    <Button
+                      disabled={stopLoading || startLoading}
+                      onClick={() =>
+                        serverStopHandler(`${info?.data.createdBy}-${info?.data.name}-server`)
+                      }
+                      size="icon"
+                      className="bg-red-500 w-fit px-3"
+                    >
+                      {startLoading || stopLoading ? 'Loading..' : 'Stop Server'}
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={stopLoading || startLoading}
+                      onClick={() => serverStartHandler(info?.data.creatorId as string)}
+                      size="icon"
+                      className="bg-green-500 w-fit px-3"
+                    >
+                      {stopLoading || stopLoading ? 'Loading...' : 'Start Server'}
+                    </Button>
+                  )}
                 </TooltipTrigger>
                 <TooltipContent className="bg-zinc-900 border-zinc-700">
                   <p>Stop Server</p>

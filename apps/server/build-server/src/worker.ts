@@ -11,23 +11,19 @@ const stopServerInsideContainer = async (containerId: string) => {
   await container.remove();
 };
 
-(async () => {
+export const runQueueJob = async () => {
   (await queue).receiveFromQueue('stop-server', async (msg: any) => {
-    console.log('Received message:', msg.content.toString());
-    const { containerId, containerName, name } = JSON.parse(msg.content.toString());
-
     try {
+      console.log('Received message:', msg.content.toString());
+      const { containerId, containerName, name } = JSON.parse(msg.content.toString());
+
       await stopServerInsideContainer(containerId as string);
 
       await CacheProvider.deleteFromCache(containerName as string);
-      await Project.updateOne(
-        { name },
-        {
-          serverStatus: 'stopped',
-        }
-      );
+      await Project.deleteOne({ name });
+      console.log(`Container ${containerName} stopped successfully`);
     } catch (error) {
       console.error('Error stopping container:', error);
     }
   });
-})();
+};

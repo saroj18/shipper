@@ -13,6 +13,6 @@ MongoDBConnection.getInstance()
     });
   })
   .catch((error: any) => {
-    console.log('Error starting server: ', error.message);
+    console.log('Error starting server: ', error.message)
     process.exit(1);
   });

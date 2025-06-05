@@ -31,8 +31,8 @@ const CreateProject = () => {
     onSettled: () => {
       const timeout = setTimeout(() => {
         setLoading(false);
-        console.error('Request timed out after 30 seconds.');
-      }, 30000);
+        console.error('Request timed out after 60 seconds.');
+      }, 60000);
 
       return () => clearTimeout(timeout);
     },

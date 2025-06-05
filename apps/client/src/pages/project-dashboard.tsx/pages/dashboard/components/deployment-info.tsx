@@ -128,13 +128,12 @@ const DeploymentInfo = ({
             )}
             {status === 'stopped' && (
               <>
-                <div className="h-4 w-4 rounded-full border-2 border-t-transparent border-blue-500 animate-spin"></div>
-                <span className="text-sm">Stopped</span>
+                <span className="text-sm text-red-500">Stopped</span>
               </>
             )}
             {status === 'error' && (
               <>
-                <div className="h-4 w-4 rounded-full bg-red-500"></div>
+                <div className="h-4 w-4 rounded-full text-red-500"></div>
                 <span className="text-sm">Error</span>
               </>
             )}

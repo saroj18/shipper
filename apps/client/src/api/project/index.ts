@@ -26,6 +26,11 @@ export const stopServer = async (containerName: string) => {
   return data;
 };
 
+export const startServer = async (userId: string) => {
+  const { data } = await axios.get(`http://localhost:10000/start-server?userId=${userId}`);
+  return data;
+};
+
 const getAllProjects = async () => {
   const { data } = await apiClient.get('/project');
   return data;

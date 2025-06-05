@@ -34,6 +34,7 @@ export type Project = {
   serverDomain: string;
   clientDomain: string;
   serverDockerImage: string;
+  creatorId: string;
   env: [
     {
       key: string;

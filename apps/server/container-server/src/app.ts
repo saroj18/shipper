@@ -5,6 +5,7 @@ import { Project } from '@repo/database/models/project.model.js';
 import http from 'http';
 import { CacheProvider } from '@repo/redis';
 import cors from 'cors';
+import { ApiError } from '@repo/utils';
 
 export const app = express();
 export const server = http.createServer(app);
@@ -19,42 +20,53 @@ app.use(
 app.get('/start-server', async (req, resp) => {
   try {
     const { image, flag, userId } = req.query;
-    const project = await Project.findOne({ serverDockerImage: image });
+
+    const project = await Project.findOne({
+      $or: [{ creatorId: userId }, { serverDockerImage: image }],
+    });
 
     if (!project) {
-      throw new Error('Project not found');
+      throw new ApiError('Project not found', 404);
     }
 
     const envVariables = generateEnvVariables(project.env as { key: string; value: string }[]);
 
-    if (!image) {
-      throw new Error('flag is required');
+    if (!project.serverDockerImage) {
+      throw new ApiError('image is required', 400);
     }
-    const containerInfo = await runServerInsideContainer(
-      image as string,
-      flag as string,
+    console.log('this is happen');
+    await runServerInsideContainer(
+       project.serverDockerImage,
+      (flag as string) || `${project.createdBy}-${project.name}`,
       envVariables,
       userId as string
     );
     await Project.updateOne(
-      { serverDockerImage: image },
-      { serverStatus: 'running' }
+      { $or: [{ serverDockerImage: image }, { creatorId: userId }] },
+      { $set: { serverStatus: 'running' } }
     );
 
     resp.json({ message: 'Now your server is live please do refresh again' });
   } catch (error: any) {
-    resp.status(400).send({ message: error.message });
+    resp.status(400).send({ error: error.message });
   }
 });
 
 app.get('/stop-server', async (req, resp) => {
   try {
-    const { containerName, name } = req.query;
+    const { containerName } = req.query;
+    console.log('containerName:', containerName);
 
-    const { containerId } = JSON.parse(
-      await CacheProvider.getDataFromCache(containerName as string)
-    );
-    console.log('containerId:', name);
+    if (!containerName) {
+      throw new ApiError('your server is failed please re-deploy it with valid configuration', 400);
+    }
+
+    const cachedData = await CacheProvider.getDataFromCache(containerName as string);
+    if (!cachedData) {
+      throw new ApiError('your server is failed please re-deploy it with valid configuration', 400);
+    }
+    const { containerId, userId } = JSON.parse(cachedData);
+    console.log('userId:', userId.split('/')[0]);
 
     if (!containerId) {
       throw new Error('containerid is required');
@@ -62,12 +74,16 @@ app.get('/stop-server', async (req, resp) => {
 
     await stopServerInsideContainer(containerId as string);
     await CacheProvider.deleteFromCache(containerName as string);
-    await Project.updateOne(
-      { name },
+    const data = await Project.updateOne(
+      { creatorId: userId.split('/')[0] },
       {
-        serverStatus: 'stopped',
-      }
+        $set: {
+          serverStatus: 'stopped',
+        },
+      },
+      { new: true }
     );
+    console.log('demoda>>>>>', data);
 
     resp.status(200).send({
       message: 'Container stopped and removed successfully',
@@ -75,7 +91,7 @@ app.get('/stop-server', async (req, resp) => {
       containerPort: 3000,
     });
   } catch (error: any) {
-    resp.status(400).send({ message: error.message });
+    resp.status(400).send({ error: error.message });
   }
 });
 

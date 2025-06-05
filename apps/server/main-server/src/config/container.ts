@@ -72,8 +72,6 @@ const pullImage = async (image: string): Promise<void> => {
 };
 
 export const runBuildContainer = async (projectInfo: any) => {
-  // const env = envExtrator(projectInfo.envVariables);
-  // console.log("env>>>>>", env);
   const exists = await imageExistsLocally(
     '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1'
   );
@@ -147,7 +145,7 @@ export const runBuildContainer = async (projectInfo: any) => {
             type,
             message: line,
           };
-          console.log(logObject); // or stream/send it
+          console.log(logObject); 
           SocketProvider.emitEvent(projectInfo.userId, 'build_logs', logObject);
         }
       }
@@ -164,15 +162,14 @@ export const runBuildContainer = async (projectInfo: any) => {
     const findProject = await Project.findOne({
       project_url: projectInfo.projectLink,
     });
-    console.log('projectInfo>>>>>', projectInfo);
     if (findProject) {
-      console.log('Project already exists, updating...??????????????????');
       SocketProvider.emitEvent(projectInfo.userId, 'build_status', true);
       await Project.updateMany(
         { project_url: projectInfo.projectLink },
         {
           serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
           env: projectInfo.envVariables,
+          serverStatus: 'running',
           clientDomain: projectInfo.clientExists
             ? projectInfo.username.toLowerCase() +
               '-' +
@@ -215,6 +212,8 @@ export const runBuildContainer = async (projectInfo: any) => {
         project_url: projectInfo.projectLink,
         serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
         env: projectInfo.envVariables,
+        serverStatus: 'running',
+        creatorId: projectInfo.userId,
         clientDomain: projectInfo.clientExists
           ? projectInfo.username.toLowerCase() +
             '-' +
@@ -232,6 +231,6 @@ export const runBuildContainer = async (projectInfo: any) => {
       await fetch(BASE_PATH);
     }
   } catch (error: any) {
-    console.log('Error: ', error.message);
+    console.log('Errorgg: ', error.message);
   }
 };
