@@ -21,7 +21,8 @@ const ProjectDashboard = ({}) => {
     payload as string
   );
   const { mutate, isPending: stopLoading } = useMutation({
-    mutationFn: (containerName: string) => stopServer(containerName),
+    mutationFn: ({ containerName, image }: { containerName: string; image: string }) =>
+      stopServer(containerName, image),
     onSuccess: (data) => {
       toast.success('Server stopped successfully');
 
@@ -33,7 +34,8 @@ const ProjectDashboard = ({}) => {
   });
 
   const { mutate: startMutate, isPending: startLoading } = useMutation({
-    mutationFn: (containerName: string) => startServer(containerName),
+    mutationFn: ({ image, userId }: { image: string; userId: string }) =>
+      startServer(image, userId),
     onSuccess: (data) => {
       toast.success('Server Started successfully');
 
@@ -44,13 +46,13 @@ const ProjectDashboard = ({}) => {
     },
   });
 
-  const serverStopHandler = async (containerName: string) => {
+  const serverStopHandler = async (containerName: string, image: string) => {
     console.log('Stopping server for container:', containerName);
-    mutate(containerName);
+    mutate({ containerName, image });
   };
-  const serverStartHandler = async (userId: string) => {
+  const serverStartHandler = async (image: string, userId: string) => {
     console.log('Stopping server for container:', userId);
-    startMutate(userId);
+    startMutate({ image, userId });
   };
 
   return isLoading ? (
@@ -69,7 +71,10 @@ const ProjectDashboard = ({}) => {
                     <Button
                       disabled={stopLoading || startLoading}
                       onClick={() =>
-                        serverStopHandler(`${info?.data.createdBy}-${info?.data.name}-server`)
+                        serverStopHandler(
+                          `${info?.data.createdBy}-${info?.data.name}-server`,
+                          info.data.serverDockerImage
+                        )
                       }
                       size="icon"
                       className="bg-red-500 w-fit px-3"
@@ -79,7 +84,12 @@ const ProjectDashboard = ({}) => {
                   ) : (
                     <Button
                       disabled={stopLoading || startLoading}
-                      onClick={() => serverStartHandler(info?.data.creatorId as string)}
+                      onClick={() =>
+                        serverStartHandler(
+                          info?.data.serverDockerImage as string,
+                          info?.data.creatorId as string
+                        )
+                      }
                       size="icon"
                       className="bg-green-500 w-fit px-3"
                     >

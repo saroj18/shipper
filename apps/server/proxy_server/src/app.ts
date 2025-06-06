@@ -5,6 +5,7 @@ import httpProxy from 'http-proxy';
 import { Project } from '@repo/database/models/project.model.js';
 dotenv.config();
 import { CacheProvider } from '@repo/redis';
+import { ApiError } from '@repo/utils';
 
 export const app = express();
 
@@ -43,6 +44,11 @@ app.use(async (req, res) => {
       req.url = '/error.html';
 
       return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
+    }
+
+    if (project.serverStatus === 'stopped') {
+      res.status(400).send({ error: 'your server is stopped please start it from dashboard' });
+      return;
     }
     const BASE_PATH = `http://localhost:10000/start-server?image=${project.serverDockerImage}&&flag=${project.createdBy}-${project.name}&&env=${project.env}&&userId=${project.creatorId}`;
 

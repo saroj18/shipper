@@ -2,8 +2,6 @@ import Docker from 'dockerode';
 import { getEcrAuth } from './utils/checkAuth.js';
 import { checkPort } from './utils/checkPort.js';
 import { CacheProvider } from '@repo/redis';
-import { envExtrator } from './utils/env.extrator.js';
-import { SocketProvider } from '@repo/socket';
 import { Project } from '@repo/database/models/project.model.js';
 
 const docker = new Docker();
@@ -144,7 +142,7 @@ export const runServerInsideContainer = async (
 
     logStream.on('data', async (chunk) => {
       console.log('>>>>>', chunk.toString('utf8'));
-      // SocketProvider.emitEvent(userId, 'server_logs', chunk.toString('utf8'));
+      await CacheProvider.publishToChannel('server_logs', { userId, payload: chunk.toString('utf8') });
     });
     await Project.updateOne(
       { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
@@ -159,7 +157,10 @@ export const runServerInsideContainer = async (
     };
   } catch (error: any) {
     console.error(`[Error] ${error.message}`);
-    SocketProvider.emitEvent(userId, 'server_logs', error.message || 'your server is not running');
+   await CacheProvider.publishToChannel('server_logs', {
+      userId,
+      payload: error.message || 'your server is not running',
+    });
     await Project.updateOne(
       { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
       { $set: { serverStatus: 'stopped' } }

@@ -65,7 +65,7 @@ export const deleteProject = asyncHandler(async (req, resp) => {
   if (!project) {
     throw new ApiError('Project not found', 404);
   }
-  const containerName = `${payload[0]}-${payload[1]}-server`;
+  const containerName = `${payload[0]}-${payload[1]}-server`
 
   const cacheData = await CacheProvider.getDataFromCache(containerName as string);
   if (!cacheData) {

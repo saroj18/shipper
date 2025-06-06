@@ -22,6 +22,7 @@ const Main = () => {
                 serverDomain={project.serverDomain}
                 createdAt={new Date(project.createdAt).toLocaleDateString()}
                 username={project.createdBy}
+                status={project.serverStatus}
               />
             );
           })

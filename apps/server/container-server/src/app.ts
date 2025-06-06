@@ -9,6 +9,7 @@ import { ApiError } from '@repo/utils';
 
 export const app = express();
 export const server = http.createServer(app);
+
 app.use(
   cors({
     origin: 'http://localhost:5173',
@@ -20,9 +21,10 @@ app.use(
 app.get('/start-server', async (req, resp) => {
   try {
     const { image, flag, userId } = req.query;
+    console.log('userId:', userId);
 
     const project = await Project.findOne({
-      $or: [{ creatorId: userId }, { serverDockerImage: image }],
+      serverDockerImage: image,
     });
 
     if (!project) {
@@ -36,15 +38,12 @@ app.get('/start-server', async (req, resp) => {
     }
     console.log('this is happen');
     await runServerInsideContainer(
-       project.serverDockerImage,
+      project.serverDockerImage,
       (flag as string) || `${project.createdBy}-${project.name}`,
       envVariables,
       userId as string
     );
-    await Project.updateOne(
-      { $or: [{ serverDockerImage: image }, { creatorId: userId }] },
-      { $set: { serverStatus: 'running' } }
-    );
+    await Project.updateOne({ serverDockerImage: image }, { $set: { serverStatus: 'running' } });
 
     resp.json({ message: 'Now your server is live please do refresh again' });
   } catch (error: any) {
@@ -54,7 +53,7 @@ app.get('/start-server', async (req, resp) => {
 
 app.get('/stop-server', async (req, resp) => {
   try {
-    const { containerName } = req.query;
+    const { containerName, image } = req.query;
     console.log('containerName:', containerName);
 
     if (!containerName) {
@@ -66,7 +65,6 @@ app.get('/stop-server', async (req, resp) => {
       throw new ApiError('your server is failed please re-deploy it with valid configuration', 400);
     }
     const { containerId, userId } = JSON.parse(cachedData);
-    console.log('userId:', userId.split('/')[0]);
 
     if (!containerId) {
       throw new Error('containerid is required');
@@ -75,7 +73,7 @@ app.get('/stop-server', async (req, resp) => {
     await stopServerInsideContainer(containerId as string);
     await CacheProvider.deleteFromCache(containerName as string);
     const data = await Project.updateOne(
-      { creatorId: userId.split('/')[0] },
+      { serverDockerImage: image },
       {
         $set: {
           serverStatus: 'stopped',

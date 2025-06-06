@@ -27,6 +27,7 @@
   "dependencies": {
     "@repo/database": "^1.0.0",
     "@repo/rabbitmq": "^1.0.0",
+    "@repo/redis": "^1.0.0",
     "@repo/utils": "*",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",

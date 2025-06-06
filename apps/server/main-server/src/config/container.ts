@@ -117,7 +117,7 @@ export const runBuildContainer = async (projectInfo: any) => {
       stderr: true,
     });
 
-    logStream.on('data', (chunk) => {
+    logStream.on('data', async (chunk) => {
       // console.log('>>>>>', chunk.toString('utf8'));
 
       const header = chunk.slice(0, 8);
@@ -145,8 +145,11 @@ export const runBuildContainer = async (projectInfo: any) => {
             type,
             message: line,
           };
-          console.log(logObject); 
-          SocketProvider.emitEvent(projectInfo.userId, 'build_logs', logObject);
+          console.log(logObject);
+          await CacheProvider.publishToChannel('build_logs', {
+            userId: projectInfo.userId,
+            payload: logObject,
+          });
         }
       }
     });
@@ -155,7 +158,10 @@ export const runBuildContainer = async (projectInfo: any) => {
     await container.remove();
 
     if (waitAMin.StatusCode !== 0) {
-      SocketProvider.emitEvent(projectInfo.userId, 'build_status', false);
+      await CacheProvider.publishToChannel('build_status', {
+        userId: projectInfo.userId,
+        payload: false,
+      });
       return;
     }
 
@@ -163,7 +169,10 @@ export const runBuildContainer = async (projectInfo: any) => {
       project_url: projectInfo.projectLink,
     });
     if (findProject) {
-      SocketProvider.emitEvent(projectInfo.userId, 'build_status', true);
+      await CacheProvider.publishToChannel('build_status', {
+        userId: projectInfo.userId,
+        payload: true,
+      });
       await Project.updateMany(
         { project_url: projectInfo.projectLink },
         {
@@ -205,7 +214,10 @@ export const runBuildContainer = async (projectInfo: any) => {
       const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}&&userId=${projectInfo.userId}`;
       await fetch(BASE_PATH);
     } else {
-      SocketProvider.emitEvent(projectInfo.userId, 'build_status', true);
+      await CacheProvider.publishToChannel('build_status', {
+        userId: projectInfo.userId,
+        payload: true,
+      });
       await Project.create({
         name: projectInfo.projectName,
         createdBy: projectInfo.username,

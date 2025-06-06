@@ -19,12 +19,7 @@ const Navbar = () => {
         <div className="flex items-center gap-10">
           <Logo />
           <nav className="hidden md:flex gap-16">
-            <Link
-              to="#"
-              className="text-lg font-black text-muted-background transition-colors hover:text-foreground"
-            >
-              Features
-            </Link>
+           
             <Link
               to="#"
               className="text-lg font-medium text-muted-background transition-colors hover:text-foreground"
@@ -37,12 +32,7 @@ const Navbar = () => {
             >
               Documentation
             </Link>
-            <Link
-              to="#"
-              className="text-lg font-medium text-muted-background transition-colors hover:text-foreground"
-            >
-              Templates
-            </Link>
+
             <Link
               to="#"
               className="text-lg font-medium text-muted-background transition-colors hover:text-foreground"
