@@ -21,6 +21,12 @@ export const deleteProject = async (id: string) => {
   return data;
 };
 
+export const updateENV = async (env: any[], payload: string) => {
+  console.log('sora', payload);
+  const { data } = await apiClient.post(`/project/env`, { env, payload: payload.toLowerCase() });
+  return data;
+};
+
 export const stopServer = async (containerName: string, image: string) => {
   const { data } = await axios.get(
     `http://localhost:10000/stop-server?containerName=${containerName.toLowerCase()}&&image=${image}`

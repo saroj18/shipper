@@ -116,3 +116,28 @@ export const deleteProject = asyncHandler(async (req, resp) => {
 
   resp.status(200).json(new ApiResponse('Project deleted successfully', 200, null));
 });
+
+export const updateENV = asyncHandler(async (req, resp) => {
+  const { env, payload } = req.body;
+  if (!payload) {
+    throw new ApiError('Payload is required', 400);
+  }
+
+  if (!env || !Array.isArray(env)) {
+    throw new ApiError('Environment variables are required', 400);
+  }
+
+  const userId = req.user as string;
+  const info = payload.split('/');
+  await Project.updateOne(
+    {
+      $or: [
+        { clientDomain: `${info[0]}-${info[1]}-client` },
+        { serverDomain: `${info[0]}-${info[1]}-server` },
+      ],
+    },
+    { env: env }
+  );
+
+  resp.status(200).json(new ApiResponse('Environment variables updated successfully', 200, null));
+});

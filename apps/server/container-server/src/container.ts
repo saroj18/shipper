@@ -168,16 +168,13 @@ export const runServerInsideContainer = async (
       });
     }, 1000);
 
-    const updatedProject = await Project.updateOne(
+     await Project.updateOne(
       { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
       { $set: { serverStatus: 'error' } },
       { new: true }
     );
-    const demo = await Project.find({
-      serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server`,
-    });
-    console.error(`[Updated Project Data] :`, demo);
-    console.error(`[Errors] ${error.message}`);
+   
+    console.error(`[Errors] ${error.message}`)
   }
 };
 

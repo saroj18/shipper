@@ -10,7 +10,6 @@ import ProjectDashboardLayout from './pages/project-dashboard.tsx/project-dashbo
 import Deployment from './pages/project-dashboard.tsx/pages/deployment/index.tsx';
 import SettingLayout from './pages/project-dashboard.tsx/pages/settings/settingLayout.tsx';
 import ProjectSettings from './pages/project-dashboard.tsx/pages/settings/pages/general/index.tsx';
-import ScriptSettings from './pages/project-dashboard.tsx/pages/settings/pages/script-setting/index.tsx';
 import EnvironmentVariables from './pages/project-dashboard.tsx/pages/settings/pages/environment-variable/index.tsx';
 import DeploymentLogs from './pages/project-dashboard.tsx/pages/logs/index.tsx';
 import ProtectedRoute from './components/protected-route.tsx';
@@ -88,11 +87,6 @@ const router = createBrowserRouter([
                 path: '',
                 element: <ProjectSettings />,
               },
-              {
-                path: 'build-script',
-                element: <ScriptSettings />,
-              },
-
               {
                 path: 'environment-variables',
                 element: <EnvironmentVariables />,

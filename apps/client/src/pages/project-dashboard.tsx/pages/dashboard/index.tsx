@@ -64,24 +64,10 @@ const ProjectDashboard = ({}) => {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Production Deployment</h2>
           <div className="flex items-center gap-2">
-            {info?.data.serverStatus!='error'&&<TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  {info?.data.serverStatus == 'running' ? (
-                    <Button
-                      disabled={stopLoading || startLoading}
-                      onClick={() =>
-                        serverStopHandler(
-                          `${info?.data.createdBy}-${info?.data.name}-server`,
-                          info.data.serverDockerImage
-                        )
-                      }
-                      size="icon"
-                      className="bg-red-500 w-fit px-3"
-                    >
-                      {startLoading || stopLoading ? 'Loading..' : 'Stop Server'}
-                    </Button>
-                  ) : (
+            <TooltipProvider>
+              {info?.data.serverStatus == 'error' ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
                     <Button
                       disabled={stopLoading || startLoading}
                       onClick={() =>
@@ -93,15 +79,52 @@ const ProjectDashboard = ({}) => {
                       size="icon"
                       className="bg-green-500 w-fit px-3"
                     >
-                      {stopLoading || stopLoading ? 'Loading...' : 'Start Server'}
+                      {stopLoading || stopLoading ? 'Loading...' : 'Re-Deploy'}
                     </Button>
-                  )}
-                </TooltipTrigger>
-                <TooltipContent className="bg-zinc-900 border-zinc-700">
-                  <p>Stop Server</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>}
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-900 border-zinc-700">
+                    <p>Re-Deploy Server</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {info?.data.serverStatus == 'running' ? (
+                      <Button
+                        disabled={stopLoading || startLoading}
+                        onClick={() =>
+                          serverStopHandler(
+                            `${info?.data.createdBy}-${info?.data.name}-server`,
+                            info.data.serverDockerImage
+                          )
+                        }
+                        size="icon"
+                        className="bg-red-500 w-fit px-3"
+                      >
+                        {startLoading || stopLoading ? 'Loading..' : 'Stop Server'}
+                      </Button>
+                    ) : (
+                      <Button
+                        disabled={stopLoading || startLoading}
+                        onClick={() =>
+                          serverStartHandler(
+                            info?.data.serverDockerImage as string,
+                            info?.data.creatorId as string
+                          )
+                        }
+                        size="icon"
+                        className="bg-green-500 w-fit px-3"
+                      >
+                        {stopLoading || stopLoading ? 'Loading...' : 'Start Server'}
+                      </Button>
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-900 border-zinc-700">
+                    <p>Stop Server</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </TooltipProvider>
           </div>
         </div>
 
@@ -129,7 +152,7 @@ const ProjectDashboard = ({}) => {
           />
         </div>
 
-        <LogSection  activeTab={activeTab} setActiveTab={setActiveTab} />
+        <LogSection activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </div>
   );

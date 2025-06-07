@@ -1,10 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Search } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Link } from "react-router";
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Link } from 'react-router';
 
 interface SidebarItem {
   name: string;
@@ -15,14 +13,13 @@ interface SidebarProps {
   activeItem?: string;
 }
 
-const Sidebar = ({ activeItem = "General" }: SidebarProps) => {
+const Sidebar = ({ activeItem = 'General' }: SidebarProps) => {
   const [active, setActive] = useState(activeItem);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   const sidebarItems: SidebarItem[] = [
-    { name: "General", href: "" },
-    { name: "Build and Deployment", href: "build-script" },
-    { name: "Environment Variables", href: "environment-variables" },
+    { name: 'General', href: '' },
+    { name: 'Environment Variables', href: 'environment-variables' },
   ];
 
   const filteredItems = sidebarItems.filter((item) =>
@@ -38,13 +35,13 @@ const Sidebar = ({ activeItem = "General" }: SidebarProps) => {
               <Link
                 to={item.href}
                 className={cn(
-                  "flex items-center px-4 py-2 text-lg transition-colors",
+                  'flex items-center px-4 py-2 text-lg transition-colors',
                   active === item.name
-                    ? "text-white font-medium"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    ? 'text-white font-medium'
+                    : 'text-zinc-400 hover:text-zinc-200'
                 )}
                 onClick={(e) => {
-                //   e.preventDefault();
+                  //   e.preventDefault();
                   setActive(item.name);
                 }}
               >
