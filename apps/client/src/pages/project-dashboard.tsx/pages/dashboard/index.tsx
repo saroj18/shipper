@@ -131,11 +131,27 @@ const ProjectDashboard = ({}) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden">
             <div className="bg-white p-4 h-[300px] flex items-center justify-center">
-              <img
-                src={'https://pnghq.com/wp-content/uploads/live-stream-png-full-hd-42204.png'}
-                alt="Deployment Preview"
-                className="max-w-full max-h-full object-contain"
-              />
+              {info?.data.serverStatus == 'running' ? (
+                <img
+                  src={'https://pnghq.com/wp-content/uploads/live-stream-png-full-hd-42204.png'}
+                  alt="Running Preview"
+                  className="max-w-full max-h-full object-contain"
+                />
+              ) : info?.data.serverStatus == 'stopped' ? (
+                <img
+                  alt="Stopped Preview"
+                  className="max-w-full max-h-full object-contain"
+                  src={
+                    'https://th.bing.com/th/id/R.f95c284fb11fed61e2de62da425ad0b8?rik=yBu%2bnYA4%2bkk%2biw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fstop-png-hd-stop-sign-clipart-png-clipart-2400.png&ehk=ZW38wmFqO7T1dNmNMT9qbmN89H9aq8WXPKyOS%2fYxQHs%3d&risl=&pid=ImgRaw&r=0'
+                  }
+                />
+              ) : (
+                <img
+                  src={'https://www.freeiconspng.com/uploads/error-icon-15.png'}
+                  alt="Error Preview"
+                  className="max-w-full max-h-full object-contain"
+                />
+              )}
             </div>
           </div>
 

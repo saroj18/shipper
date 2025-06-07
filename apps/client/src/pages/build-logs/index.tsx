@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Header from './components/header';
 import { socket } from '@/socket';
-import { queryClient } from '@/main';
 
 type BuildLogType = {
   type: string;
@@ -17,6 +16,7 @@ const BuildLogs = ({ projectUrl }: { projectUrl: string }) => {
     setLogs([]);
 
     const logHandler = (data: { type: string; message: string }) => {
+      console.log('Received log:', data);
       setLogs((prevLogs) => [...prevLogs, data]);
     };
 
@@ -24,7 +24,6 @@ const BuildLogs = ({ projectUrl }: { projectUrl: string }) => {
     socket.on('build_status', (status: boolean) => {
       if (status) {
         setBuild(status);
-        
       }
     });
 

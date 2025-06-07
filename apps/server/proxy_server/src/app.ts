@@ -57,7 +57,7 @@ app.use(async (req, res) => {
     const project = await Project.findOne({
       clientDomain: { $regex: `^${subdomain}$`, $options: 'i' },
     });
-    console.log('project', project);
+    
 
     if (!project) {
       console.log('error');
@@ -67,6 +67,11 @@ app.use(async (req, res) => {
       return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
     }
 
+     if (project.serverStatus === 'stopped') {
+      res.status(400).send({ error: 'your server is stopped please start it from dashboard' });
+      return;
+    }
+    
     console.log('path', req.url);
     const BASE_PATH = `https://bucket-shipper.s3.ap-south-1.amazonaws.com/${project.createdBy}/${project.name}/client`;
     if (req.url !== '/' && !req.url.startsWith('/assets')) {

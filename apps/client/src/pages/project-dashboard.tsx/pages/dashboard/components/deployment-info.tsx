@@ -24,8 +24,8 @@ const DeploymentInfo = ({
     <div className="lg:col-span-2 bg-zinc-900 rounded-lg border border-zinc-800 p-6 space-y-6">
       <div>
         <h3 className="text-sm font-medium text-zinc-400 mb-2">Deployment</h3>
-        {status == 'error' ? (
-          <p className="text-red-500">Error</p>
+        {status == 'error' || status == 'stopped' ? (
+          <p className="text-red-500 uppercase">{status}</p>
         ) : (
           <div className="flex items-center gap-2">
             <p className="text-sm text-zinc-300 break-all">
@@ -56,8 +56,8 @@ const DeploymentInfo = ({
       {clientDomain && (
         <div>
           <h3 className="text-sm font-medium text-zinc-400 mb-2">Client Domain</h3>
-          {status == 'error' ? (
-            <p className="text-red-500">Error</p>
+          {status == 'error' || status == 'stopped' ? (
+            <p className="text-red-500 uppercase">{status}</p>
           ) : (
             <div className="flex items-center gap-2">
               <p className="text-sm text-zinc-300">
@@ -93,8 +93,8 @@ const DeploymentInfo = ({
       {serverDomain && (
         <div>
           <h3 className="text-sm font-medium text-zinc-400 mb-2">Server Domain</h3>
-          {status == 'error' ? (
-            <p className="text-red-500">Error</p>
+          {status == 'error' || status == 'stopped' ? (
+            <p className="text-red-500 uppercase">{status}</p>
           ) : (
             <div className="flex items-center gap-2">
               <p className="text-sm text-zinc-300">
@@ -135,17 +135,17 @@ const DeploymentInfo = ({
             {status === 'running' && (
               <>
                 <CheckCircle className="h-4 w-4 text-emerald-500" />
-                <span className="text-sm">Running</span>
+                <span className="text-sm uppercase">Running</span>
               </>
             )}
             {status === 'stopped' && (
               <>
-                <span className="text-sm text-red-500">Stopped</span>
+                <span className="text-sm text-red-500 uppercase">Stopped</span>
               </>
             )}
             {status === 'error' && (
               <>
-                <span className="text-sm  text-red-500">Error</span>
+                <span className="text-sm  text-red-500 uppercase">Error</span>
               </>
             )}
           </div>

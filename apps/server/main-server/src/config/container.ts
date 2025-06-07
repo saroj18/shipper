@@ -118,42 +118,67 @@ export const runBuildContainer = async (projectInfo: any) => {
       stderr: true,
     });
 
+    const sentLogLines = new Set();
+
     logStream.on('data', async (chunk) => {
-      // console.log('>>>>>', chunk.toString('utf8'));
+      try {
+        const header = chunk.slice(0, 8);
+        const type = header[0] === 1 ? 'stdout' : 'stderr';
+        const content = chunk.slice(8).toString('utf8');
+        console.log('Log chunk received:', content);
 
-      const header = chunk.slice(0, 8);
-      const type = header[0] === 1 ? 'stdout' : 'stderr';
-      const content = chunk.slice(8).toString();
+        const lines = content.split('\n').filter(Boolean);
 
-      const lines = content.split('\n').filter(Boolean);
+        for (const line of lines) {
+          const logKey = `${type}-${line}`;
+          if (sentLogLines.has(logKey)) continue;
+          sentLogLines.add(logKey);
 
-      for (const line of lines) {
-        const isIncluded = INCLUDE_KEYWORDS.some((k) => line.includes(k));
-        const isExcluded = EXCLUDE_KEYWORDS.some((k) => line.includes(k));
-        console.log('line>>>>>', line);
-        const isClientExists = line.includes('CLIENT_IS_HERE');
-        const isServerExists = line.includes('SERVER_IS_HERE');
-        if (isClientExists) {
-          projectInfo.clientExists = true;
+          if (line.includes('CLIENT_IS_HERE')) {
+            projectInfo.clientExists = true;
+          }
+
+          if (line.includes('SERVER_IS_HERE')) {
+            projectInfo.serverExists = true;
+          }
+
+          const isIncluded = INCLUDE_KEYWORDS.some((k) => line.includes(k));
+          const isExcluded = EXCLUDE_KEYWORDS.some((k) => line.includes(k));
+
+          if (isIncluded && !isExcluded) {
+            const logObject = {
+              type,
+              message: line,
+            };
+
+            console.log('Publishing log:', logObject);
+
+            await CacheProvider.publishToChannel('build_logs', {
+              userId: projectInfo.userId,
+              payload: logObject,
+            });
+          }
         }
-
-        if (isServerExists) {
-          projectInfo.serverExists = true;
-        }
-
-        if (isIncluded && !isExcluded) {
-          const logObject = {
-            type,
-            message: line,
-          };
-          console.log(logObject);
-          await CacheProvider.publishToChannel('build_logs', {
-            userId: projectInfo.userId,
-            payload: logObject,
-          });
-        }
+      } catch (err) {
+        console.error('Error processing log chunk:', err);
       }
     });
+
+    const clearIntervalId = setInterval(
+      () => {
+        sentLogLines.clear();
+      },
+      5 * 60 * 1000
+    );
+
+    const clearLogs = () => {
+      sentLogLines.clear();
+      clearInterval(clearIntervalId);
+      console.log('Log stream ended or closed. Cleared sent logs.');
+    };
+
+    logStream.on('end', clearLogs);
+    logStream.on('close', clearLogs);
 
     const waitAMin = await container.wait();
     await container.remove();

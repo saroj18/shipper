@@ -12,6 +12,10 @@ const Main = () => {
       <div className="grid grid-cols-3 gap-4 p-8">
         {isLoading ? (
           <Loader />
+        ) : projects?.data.length === 0 ? (
+          <div className="col-span-3 text-xl text-center text-gray-500">
+            No projects found. Please create a new project.
+          </div>
         ) : (
           projects?.data.map((project) => {
             return (
