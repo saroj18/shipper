@@ -30,7 +30,7 @@ const Card = ({
       to={`/project-dashboard/${encodeURIComponent(username + '/' + projectName)}`}
       className="border-2 h-fit border-neutral-500 rounded-md p-6 space-y-4 bg-neutral-950"
     >
-      <div className='flex justify-between items-center'>
+      <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <GithubIcon className="text-gray-500 size-10" />
           <div>
@@ -40,6 +40,8 @@ const Card = ({
         </div>
         {status == 'running' ? (
           <p className="text-green-500">Running</p>
+        ) : status == 'error' ? (
+          <p className="text-red-500">Error</p>
         ) : (
           <p className="text-red-500">Stopped</p>
         )}

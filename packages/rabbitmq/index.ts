@@ -1,52 +1,42 @@
-import amqp from "amqplib";
+import amqp from 'amqplib';
 
 export class MessageQueue {
-  private static instance: MessageQueue;
-  private connection: amqp.ChannelModel | null = null;
+  private static instance: amqp.ChannelModel;
 
   private constructor() {}
 
-  public static async getInstance(): Promise<MessageQueue> {
+  public static async getInstance(): Promise<amqp.ChannelModel> {
     if (!MessageQueue.instance) {
-      MessageQueue.instance = new MessageQueue();
-      await MessageQueue.instance.init();
+      console.log('Creating a new instance of MessageQueue');
+      this.instance = await amqp.connect('amqp://guest:guest@localhost:5672');
     }
-    return MessageQueue.instance;
+    return this.instance;
   }
 
-  private async init() {
-    try {
-      this.connection = await amqp.connect("amqp://guest:guest@localhost:5672");
-      console.log("RabbitMQ Connected");
-    } catch (error) {
-      console.error("RabbitMQ Connection Error:", error);
+  public static async pushOnQueue(queue: string, message: string) {
+    if (!(await this.getInstance())) {
+      throw new Error('No RabbitMQ connection available');
     }
-  }
-
-  public async pushOnQueue(queue: string, message: string) {
-    if (!this.connection) {
-      throw new Error("No RabbitMQ connection available");
-    }
-    const channel = await this.connection.createChannel();
-    await channel.assertQueue(queue, { durable: true });
-    channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
+    const channel = (await this.getInstance()).createChannel();
+    (await channel).assertQueue(queue, { durable: true });
+    (await channel).sendToQueue(queue, Buffer.from(message), { persistent: true });
     console.log(`[x] Sent: ${message}`);
   }
 
-  public async receiveFromQueue(
+  public static async receiveFromQueue(
     queue: string,
     callback: (msg: amqp.Message | null) => void
   ) {
-    if (!this.connection) {
-      throw new Error("No RabbitMQ connection available");
+    if (!(await this.getInstance())) {
+      throw new Error('No RabbitMQ connection available');
     }
-    const channel = await this.connection.createChannel();
-    await channel.assertQueue(queue, { durable: true });
-    console.log("[*] Waiting for messages...");
-    channel.consume(queue, (msg) => {
+    const channel = (await this.getInstance()).createChannel();
+    (await channel).assertQueue(queue, { durable: true });
+    console.log('[*] Waiting for messages...');
+    (await channel).consume(queue, async (msg) => {
       if (msg) {
         callback(msg);
-        channel.ack(msg);
+        (await channel).ack(msg);
       }
     });
   }

@@ -64,7 +64,7 @@ const ProjectDashboard = ({}) => {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Production Deployment</h2>
           <div className="flex items-center gap-2">
-            <TooltipProvider>
+            {info?.data.serverStatus!='error'&&<TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   {info?.data.serverStatus == 'running' ? (
@@ -101,7 +101,7 @@ const ProjectDashboard = ({}) => {
                   <p>Stop Server</p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
+            </TooltipProvider>}
           </div>
         </div>
 
@@ -129,7 +129,7 @@ const ProjectDashboard = ({}) => {
           />
         </div>
 
-        <LogSection activeTab={activeTab} setActiveTab={setActiveTab} />
+        <LogSection  activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </div>
   );

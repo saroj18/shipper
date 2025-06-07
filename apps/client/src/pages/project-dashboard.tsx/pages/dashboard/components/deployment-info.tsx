@@ -15,7 +15,7 @@ const DeploymentInfo = ({
   serverDomain,
   createdAt,
   createdBy,
-  status
+  status,
 }: DeploymentInfoProps) => {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text + `${import.meta.env.VITE_DOMAIN}`);
@@ -24,95 +24,107 @@ const DeploymentInfo = ({
     <div className="lg:col-span-2 bg-zinc-900 rounded-lg border border-zinc-800 p-6 space-y-6">
       <div>
         <h3 className="text-sm font-medium text-zinc-400 mb-2">Deployment</h3>
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-zinc-300 break-all">
-            {clientDomain || serverDomain}
-            {import.meta.env.VITE_DOMAIN}
-          </p>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => copyToClipboard(clientDomain || serverDomain)}
-                >
-                  <Copy className="h-3.5 w-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-zinc-900 border-zinc-700">
-                <p>Copy URL</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        {status == 'error' ? (
+          <p className="text-red-500">Error</p>
+        ) : (
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-zinc-300 break-all">
+              {clientDomain || serverDomain}
+              {import.meta.env.VITE_DOMAIN}
+            </p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => copyToClipboard(clientDomain || serverDomain)}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-zinc-900 border-zinc-700">
+                  <p>Copy URL</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
       </div>
 
       {clientDomain && (
         <div>
           <h3 className="text-sm font-medium text-zinc-400 mb-2">Client Domain</h3>
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-zinc-300">
-              {clientDomain + `${import.meta.env.VITE_DOMAIN}`}
-            </p>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() => copyToClipboard(clientDomain)}
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-zinc-900 border-zinc-700">
-                  <p>Copy domain</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <ExternalLink
-              onClick={() =>
-                window.open('http://' + clientDomain + import.meta.env.VITE_DOMAIN, '_blank')
-              }
-              className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300"
-            />
-          </div>
+          {status == 'error' ? (
+            <p className="text-red-500">Error</p>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-zinc-300">
+                {clientDomain + `${import.meta.env.VITE_DOMAIN}`}
+              </p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => copyToClipboard(clientDomain)}
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-900 border-zinc-700">
+                    <p>Copy domain</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <ExternalLink
+                onClick={() =>
+                  window.open('http://' + clientDomain + import.meta.env.VITE_DOMAIN, '_blank')
+                }
+                className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300"
+              />
+            </div>
+          )}
         </div>
       )}
       {serverDomain && (
         <div>
           <h3 className="text-sm font-medium text-zinc-400 mb-2">Server Domain</h3>
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-zinc-300">
-              {serverDomain + `${import.meta.env.VITE_DOMAIN}`}
-            </p>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() => copyToClipboard(serverDomain)}
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-zinc-900 border-zinc-700">
-                  <p>Copy domain</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <ExternalLink
-              onClick={() =>
-                window.open('http://' + serverDomain + import.meta.env.VITE_DOMAIN, '_blank')
-              }
-              className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300"
-            />
-          </div>
+          {status == 'error' ? (
+            <p className="text-red-500">Error</p>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-zinc-300">
+                {serverDomain + `${import.meta.env.VITE_DOMAIN}`}
+              </p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => copyToClipboard(serverDomain)}
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-900 border-zinc-700">
+                    <p>Copy domain</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <ExternalLink
+                onClick={() =>
+                  window.open('http://' + serverDomain + import.meta.env.VITE_DOMAIN, '_blank')
+                }
+                className="h-3.5 w-3.5 text-zinc-500 cursor-pointer hover:text-zinc-300"
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -133,8 +145,7 @@ const DeploymentInfo = ({
             )}
             {status === 'error' && (
               <>
-                <div className="h-4 w-4 rounded-full text-red-500"></div>
-                <span className="text-sm">Error</span>
+                <span className="text-sm  text-red-500">Error</span>
               </>
             )}
           </div>

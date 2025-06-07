@@ -20,12 +20,13 @@ app.use(
     credentials: true,
   })
 );
-export const queue = MessageQueue.getInstance();
 SocketProvider.getInstance(server);
 
 (async () => {
-  (await queue).receiveFromQueue('project-config', async (msg: any) => {
+  await MessageQueue.receiveFromQueue('project-config', async (msg: any) => {
     console.log('Received message:', msg.content.toString());
+    console.log('awskeyid', process.env.AWS_ACCESS_KEY_ID);
+    console.log('awssecretkey', process.env.AWS_SECRET_ACCESS_KEY);
     await runBuildContainer(JSON.parse(msg.content.toString()));
   });
 })();

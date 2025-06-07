@@ -12,6 +12,7 @@ import { userGithubSingleRepo } from '@/api/github';
 import { useMutation } from '@tanstack/react-query';
 import { deployProject } from '@/api/project';
 import { socket } from '@/socket';
+import { queryClient } from '@/main';
 
 export type ProjectInfoType = {
   projectName: string;
@@ -32,7 +33,7 @@ const CreateProject = () => {
       const timeout = setTimeout(() => {
         setLoading(false);
         console.error('Request timed out after 60 seconds.');
-      }, 60000);
+      }, 120000);
 
       return () => clearTimeout(timeout);
     },
@@ -79,6 +80,7 @@ const CreateProject = () => {
   useEffect(() => {
     socket.on('build_status', (status: boolean) => {
       setBuild(status);
+      queryClient.invalidateQueries({ queryKey: ['projectInfo'] });
       setLoading(false);
     });
 

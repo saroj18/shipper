@@ -1,8 +1,8 @@
 import { ApiError, ApiResponse, asyncHandler } from '@repo/utils';
-import { queue } from '../app.js';
 import { User } from '@repo/database/models/user.model.js';
 import { Project } from '@repo/database/models/project.model.js';
 import { CacheProvider } from '@repo/redis';
+import { MessageQueue } from '@repo/rabbitmq';
 
 export const projectConfigHandler = asyncHandler(async (req, resp) => {
   const { projectLink } = req.body;
@@ -14,7 +14,7 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
   const repoUrl = projectLink.split('//');
   const finalRepoUrl = repoUrl[0] + '//' + user?.github_token + '@' + repoUrl[1];
 
-  (await queue).pushOnQueue(
+  await MessageQueue.pushOnQueue(
     'project-config',
     JSON.stringify({
       ...req.body,
@@ -29,9 +29,18 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
 
 export const getProjectInfo = asyncHandler(async (req, resp) => {
   const { payload } = req.query;
+  console.log('payload:', payload);
+
+  if (!payload) {
+    throw new ApiError('Payload is required', 400);
+  }
+  const info = (payload as string).split('/');
 
   const project = await Project.findOne({
-    project_url: { $regex: payload, $options: 'i' },
+    $or: [
+      { serverDomain: `${info[0].toLowerCase()}-${info[1].toLowerCase()}-server` },
+      { clientDomain: `${info[0].toLowerCase()}-${info[1].toLowerCase()}-client` },
+    ],
   });
 
   console.log('project:', project);
@@ -65,12 +74,20 @@ export const deleteProject = asyncHandler(async (req, resp) => {
   if (!project) {
     throw new ApiError('Project not found', 404);
   }
-  const containerName = `${payload[0]}-${payload[1]}-server`
+  const containerName = `${payload[0]}-${payload[1]}-server`;
 
   const cacheData = await CacheProvider.getDataFromCache(containerName as string);
   if (!cacheData) {
     await Project.deleteOne({ name: payload[1], createdBy: payload[0] });
-    resp.status(200).json(new ApiResponse('Project deleted successfully', 200, null));
+    await MessageQueue.pushOnQueue(
+      'delete-client-from-s3',
+      JSON.stringify({ key: `${payload[0]}/${payload[1]}` })
+    );
+    await MessageQueue.pushOnQueue(
+      'delete-server-image-from-ecr',
+      JSON.stringify({ repo_name: `${payload[0]}-${payload[1]}` })
+    );
+    resp.status(200).json(new ApiResponse('Project deleted successfully [CNSY]', 200, null));
     return;
   }
   const info = cacheData ? JSON.parse(cacheData) : null;
@@ -84,9 +101,17 @@ export const deleteProject = asyncHandler(async (req, resp) => {
     throw new Error('containerid is required');
   }
 
-  (await queue).pushOnQueue(
+  await MessageQueue.pushOnQueue(
     'stop-server',
     JSON.stringify({ containerId, containerName, name: payload[1] })
+  );
+  await MessageQueue.pushOnQueue(
+    'delete-client-from-s3',
+    JSON.stringify({ key: `${payload[0]}/${payload[1]}` })
+  );
+  await MessageQueue.pushOnQueue(
+    'delete-server-image-from-ecr',
+    JSON.stringify({ repo_name: `${payload[0]}-${payload[1]}` })
   );
 
   resp.status(200).json(new ApiResponse('Project deleted successfully', 200, null));

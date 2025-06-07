@@ -23,13 +23,15 @@ export const deleteProject = async (id: string) => {
 
 export const stopServer = async (containerName: string, image: string) => {
   const { data } = await axios.get(
-    `http://localhost:10000/stop-server?containerName=${containerName}&&image=${image}`
+    `http://localhost:10000/stop-server?containerName=${containerName.toLowerCase()}&&image=${image}`
   );
   return data;
 };
 
-export const startServer = async (image: string,userId:string) => {
-  const { data } = await axios.get(`http://localhost:10000/start-server?image=${image}&&userId=${userId}`);
+export const startServer = async (image: string, userId: string) => {
+  const { data } = await axios.get(
+    `http://localhost:10000/start-server?image=${image}&&userId=${userId}`
+  );
   return data;
 };
 

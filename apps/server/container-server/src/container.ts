@@ -142,7 +142,12 @@ export const runServerInsideContainer = async (
 
     logStream.on('data', async (chunk) => {
       console.log('>>>>>', chunk.toString('utf8'));
-      await CacheProvider.publishToChannel('server_logs', { userId, payload: chunk.toString('utf8') });
+      setTimeout(async () => {
+        await CacheProvider.publishToChannel('server_logs', {
+          userId,
+          payload: chunk.toString('utf8'),
+        });
+      }, 100);
     });
     await Project.updateOne(
       { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
@@ -156,15 +161,23 @@ export const runServerInsideContainer = async (
       containerName: containerName,
     };
   } catch (error: any) {
-    console.error(`[Error] ${error.message}`);
-   await CacheProvider.publishToChannel('server_logs', {
-      userId,
-      payload: error.message || 'your server is not running',
-    });
-    await Project.updateOne(
+    setTimeout(async () => {
+      await CacheProvider.publishToChannel('server_logs', {
+        userId,
+        payload: error.message || 'your server is not running',
+      });
+    }, 1000);
+
+    const updatedProject = await Project.updateOne(
       { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
-      { $set: { serverStatus: 'stopped' } }
+      { $set: { serverStatus: 'error' } },
+      { new: true }
     );
+    const demo = await Project.find({
+      serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server`,
+    });
+    console.error(`[Updated Project Data] :`, demo);
+    console.error(`[Errors] ${error.message}`);
   }
 };
 

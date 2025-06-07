@@ -3,8 +3,6 @@ import { Project } from '@repo/database/models/project.model.js';
 import { config } from 'dotenv';
 config();
 import { CacheProvider } from '@repo/redis';
-import { SocketProvider } from '@repo/socket';
-import { envExtrator } from './env.extractor.js';
 import { getEcrAuth } from './checkAuth.js';
 
 const INCLUDE_KEYWORDS = [
@@ -79,6 +77,9 @@ export const runBuildContainer = async (projectInfo: any) => {
     await getEcrAuth();
     await pullImage('730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1');
   }
+
+  console.log('awskeyid', process.env.AWS_ACCESS_KEY_ID);
+  console.log('awssecretkey', process.env.AWS_SECRET_ACCESS_KEY);
 
   try {
     const container = await docker.createContainer({
@@ -243,6 +244,10 @@ export const runBuildContainer = async (projectInfo: any) => {
       await fetch(BASE_PATH);
     }
   } catch (error: any) {
+    CacheProvider.publishToChannel('build_status', {
+      userId: projectInfo.userId,
+      payload: false,
+    });
     console.log('Errorgg: ', error.message);
   }
 };

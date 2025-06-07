@@ -43,7 +43,6 @@ app.get('/start-server', async (req, resp) => {
       envVariables,
       userId as string
     );
-    await Project.updateOne({ serverDockerImage: image }, { $set: { serverStatus: 'running' } });
 
     resp.json({ message: 'Now your server is live please do refresh again' });
   } catch (error: any) {
@@ -81,7 +80,10 @@ app.get('/stop-server', async (req, resp) => {
       },
       { new: true }
     );
-    console.log('demoda>>>>>', data);
+    CacheProvider.publishToChannel('server_logs', {
+      userId,
+      payload: `Your server is stopped successfully`,
+    });
 
     resp.status(200).send({
       message: 'Container stopped and removed successfully',
