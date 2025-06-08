@@ -1,4 +1,4 @@
-import { ApiError, ApiResponse, asyncHandler } from '@repo/utils';
+import { ApiError, ApiResponse, asyncHandler, setGitHubStatus } from '@repo/utils';
 import { User } from '@repo/database/models/user.model.js';
 import { Project } from '@repo/database/models/project.model.js';
 import { CacheProvider } from '@repo/redis';
@@ -146,6 +146,7 @@ export const updateENV = asyncHandler(async (req, resp) => {
 
 export const buildByWebHook = asyncHandler(async (req, resp) => {
   let { userId } = req.query;
+  const { after } = req.body;
 
   const project = await Project.findOne({
     creatorId: userId,
@@ -156,6 +157,17 @@ export const buildByWebHook = asyncHandler(async (req, resp) => {
   }
 
   const token = project.project_url.split('//')[1].split('@')[0];
+
+  setGitHubStatus({
+    owner: project.createdBy,
+    repo: project.name,
+    sha: after,
+    state: 'pending',
+    description: 'Deployment pending....',
+    context: 'webhook-trigger',
+    githubToken: token,
+  });
+
   await MessageQueue.pushOnQueue(
     'project-config',
     JSON.stringify({
@@ -165,6 +177,7 @@ export const buildByWebHook = asyncHandler(async (req, resp) => {
       username: project.createdBy,
       userId: project.creatorId,
       token,
+      sha: after,
     })
   );
 

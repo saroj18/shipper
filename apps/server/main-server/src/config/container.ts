@@ -5,6 +5,7 @@ config();
 import { CacheProvider } from '@repo/redis';
 import { getEcrAuth } from './checkAuth.js';
 import { addWebhook } from './add-webhook.js';
+import { setGitHubStatus } from '@repo/utils';
 
 const INCLUDE_KEYWORDS = [
   'npm install',
@@ -71,6 +72,7 @@ const pullImage = async (image: string): Promise<void> => {
 };
 
 export const runBuildContainer = async (projectInfo: any) => {
+  console.log('Running build container with project info:', projectInfo);
   const exists = await imageExistsLocally(
     '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1'
   );
@@ -247,7 +249,18 @@ export const runBuildContainer = async (projectInfo: any) => {
       );
       await image.remove();
       const BASE_PATH = `http://localhost:10000/start-server/?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
-      await fetch(BASE_PATH);
+      const resp = await fetch(BASE_PATH);
+      if (resp.ok) {
+        setGitHubStatus({
+          owner: projectInfo.username,
+          repo: projectInfo.projectName,
+          sha: projectInfo.sha,
+          state: 'success',
+          description: 'Deployment successful',
+          context: 'webhook-trigger',
+          githubToken: projectInfo.token,
+        });
+      }
     } else {
       await CacheProvider.publishToChannel('build_status', {
         userId: projectInfo.userId,
@@ -277,7 +290,19 @@ export const runBuildContainer = async (projectInfo: any) => {
       });
       console.log('Project created:', pro);
       const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
-      await fetch(BASE_PATH);
+      const resp = await fetch(BASE_PATH);
+      console.log('Response from start-server:', resp.status, resp.statusText, resp.ok);
+      if (resp.ok) {
+        setGitHubStatus({
+          owner: projectInfo.username,
+          repo: projectInfo.projectName,
+          sha: projectInfo.sha,
+          state: 'success',
+          description: 'Deployment successful',
+          context: 'webhook-trigger',
+          githubToken: projectInfo.token,
+        });
+      }
     }
   } catch (error: any) {
     CacheProvider.publishToChannel('build_status', {
@@ -285,5 +310,14 @@ export const runBuildContainer = async (projectInfo: any) => {
       payload: false,
     });
     console.log('Errorgg: ', error.message);
+    setGitHubStatus({
+      owner: projectInfo.username,
+      repo: projectInfo.projectName,
+      sha: projectInfo.sha,
+      state: 'failure',
+      description: `Deployment failed: ${error.message}`,
+      context: 'webhook-trigger',
+      githubToken: projectInfo.token,
+    });
   }
 };

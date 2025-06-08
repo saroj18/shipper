@@ -21,7 +21,7 @@ app.use(
 
 app.get('/start-server', async (req, resp) => {
   try {
-    let { image, flag, userId,webhook } = req.query;
+    let { image, flag, userId, webhook } = req.query;
     userId = (userId as string).split('/')[0];
     console.log('userId:', webhook);
 
@@ -43,14 +43,14 @@ app.get('/start-server', async (req, resp) => {
       project.serverDockerImage,
       (flag as string) || `${project.createdBy}-${project.name}`,
       envVariables,
-      userId as string,
+      userId as string
     );
 
     // if (response?.status == 'running') {
     //   await removeContainer(response?.containerId);
     // }
 
-    resp.json({ message: 'Now your server is live please do refresh again' });
+    resp.status(200).json({ message: 'Now your server is live please do refresh again' });
   } catch (error: any) {
     resp.status(400).send({ error: error.message });
   }
