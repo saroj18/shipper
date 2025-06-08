@@ -6,6 +6,7 @@ import http from 'http';
 import { CacheProvider } from '@repo/redis';
 import cors from 'cors';
 import { ApiError } from '@repo/utils';
+import { removeContainer } from './utils/remove-container.js';
 
 export const app = express();
 export const server = http.createServer(app);
@@ -20,8 +21,9 @@ app.use(
 
 app.get('/start-server', async (req, resp) => {
   try {
-    const { image, flag, userId } = req.query;
-    console.log('userId:', userId);
+    let { image, flag, userId,webhook } = req.query;
+    userId = (userId as string).split('/')[0];
+    console.log('userId:', webhook);
 
     const project = await Project.findOne({
       serverDockerImage: image,
@@ -37,12 +39,16 @@ app.get('/start-server', async (req, resp) => {
       throw new ApiError('image is required', 400);
     }
     console.log('this is happen');
-    await runServerInsideContainer(
+    const response = await runServerInsideContainer(
       project.serverDockerImage,
       (flag as string) || `${project.createdBy}-${project.name}`,
       envVariables,
-      userId as string
+      userId as string,
     );
+
+    // if (response?.status == 'running') {
+    //   await removeContainer(response?.containerId);
+    // }
 
     resp.json({ message: 'Now your server is live please do refresh again' });
   } catch (error: any) {

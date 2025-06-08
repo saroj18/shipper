@@ -10,6 +10,7 @@ interface ProjectSchemaType extends Document {
   serverStatus: 'running' | 'stopped' | 'error';
   containerId: string | null;
   creatorId: string;
+  webHook: boolean;
   env: [
     {
       key: string;
@@ -36,6 +37,10 @@ const ProjectSchema = new Schema<ProjectSchemaType>(
       type: String,
       required: true,
       trim: true,
+    },
+    webHook: {
+      type: Boolean,
+      default: false,
     },
     serverDomain: {
       type: String,

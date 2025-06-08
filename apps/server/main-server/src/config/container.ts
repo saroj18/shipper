@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 config();
 import { CacheProvider } from '@repo/redis';
 import { getEcrAuth } from './checkAuth.js';
+import { addWebhook } from './add-webhook.js';
 
 const INCLUDE_KEYWORDS = [
   'npm install',
@@ -77,9 +78,6 @@ export const runBuildContainer = async (projectInfo: any) => {
     await getEcrAuth();
     await pullImage('730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1');
   }
-
-  console.log('awskeyid', process.env.AWS_ACCESS_KEY_ID);
-  console.log('awssecretkey', process.env.AWS_SECRET_ACCESS_KEY);
 
   try {
     const container = await docker.createContainer({
@@ -194,6 +192,16 @@ export const runBuildContainer = async (projectInfo: any) => {
     const findProject = await Project.findOne({
       project_url: projectInfo.projectLink,
     });
+    if (!findProject?.webHook) {
+      console.log('Adding webhook for project:', projectInfo.projectLink);
+      await addWebhook(
+        projectInfo.username as string,
+        projectInfo.projectLink.split('/').pop()?.replace('.git', '') as string,
+        `https://31ee-2405-acc0-1207-8b54-f5ce-dfdb-f301-58b8.ngrok-free.app/api/v1/project/web-hook?userId=${projectInfo.userId}`,
+        projectInfo.token as string
+      );
+    }
+
     if (findProject) {
       await CacheProvider.publishToChannel('build_status', {
         userId: projectInfo.userId,
@@ -205,6 +213,7 @@ export const runBuildContainer = async (projectInfo: any) => {
           serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
           env: projectInfo.envVariables,
           serverStatus: 'running',
+          webHook: true,
           clientDomain: projectInfo.clientExists
             ? projectInfo.username.toLowerCase() +
               '-' +
@@ -237,17 +246,18 @@ export const runBuildContainer = async (projectInfo: any) => {
         `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`
       );
       await image.remove();
-      const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}&&userId=${projectInfo.userId}`;
+      const BASE_PATH = `http://localhost:10000/start-server/?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
       await fetch(BASE_PATH);
     } else {
       await CacheProvider.publishToChannel('build_status', {
         userId: projectInfo.userId,
         payload: true,
       });
-      await Project.create({
+      const pro = await Project.create({
         name: projectInfo.projectName,
         createdBy: projectInfo.username,
         project_url: projectInfo.projectLink,
+        webHook: true,
         serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
         env: projectInfo.envVariables,
         serverStatus: 'running',
@@ -265,7 +275,8 @@ export const runBuildContainer = async (projectInfo: any) => {
             '-server'
           : null,
       });
-      const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&&env=${projectInfo.envVariables}&&userId=${projectInfo.userId}`;
+      console.log('Project created:', pro);
+      const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
       await fetch(BASE_PATH);
     }
   } catch (error: any) {

@@ -15,7 +15,6 @@ dotenv.config();
 
 export const app = express();
 
-
 export const server = http.createServer(app);
 SocketProvider.getInstance(server);
 
@@ -41,7 +40,9 @@ passport.use(
     }
   )
 );
-
+app.get('/', (req, resp) => {
+  resp.send('Welcome to Build Server');
+});
 app.use(cookieParser());
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/github', userGithubRouter);

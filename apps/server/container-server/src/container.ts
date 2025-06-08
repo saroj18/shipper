@@ -48,7 +48,7 @@ export const runServerInsideContainer = async (
   image: string,
   flag: string,
   env: any,
-  userId: string
+  userId: string,
 ) => {
   const [createdBy, projectName] = flag.split('-');
   const containerName = `${createdBy}-${projectName}-server`.toLocaleLowerCase();
@@ -64,6 +64,7 @@ export const runServerInsideContainer = async (
       container.Names.includes(`/${containerName}`)
     );
     if (existingContainer && existingContainer.State === 'running') {
+     
       console.log(
         `[Info] Container ${containerName} is already running on container-port ${existingContainer.Ports[0].PrivatePort} & host-port ${existingContainer.Ports[0].PublicPort} of ip ${existingContainer.Ports[0].IP}.`
       );
@@ -74,6 +75,7 @@ export const runServerInsideContainer = async (
         containerPort: existingContainer.Ports[0].PublicPort,
         message: 'Container is already running',
         containerName: existingContainer.Names[0],
+        status: 'running',
       };
     }
 
@@ -147,7 +149,7 @@ export const runServerInsideContainer = async (
           userId,
           payload: chunk.toString('utf8'),
         });
-      }, 100);
+      }, 300);
     });
     await Project.updateOne(
       { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
@@ -168,13 +170,13 @@ export const runServerInsideContainer = async (
       });
     }, 1000);
 
-     await Project.updateOne(
+    await Project.updateOne(
       { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },
       { $set: { serverStatus: 'error' } },
       { new: true }
     );
-   
-    console.error(`[Errors] ${error.message}`)
+
+    console.error(`[Errors] ${error.message}`);
   }
 };
 

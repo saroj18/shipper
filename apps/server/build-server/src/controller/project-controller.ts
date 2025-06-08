@@ -8,6 +8,7 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
   const { projectLink } = req.body;
 
   const userId = req.user as string;
+  console.log('userId>>><<<<:', userId);
 
   const user = await User.findByPk(userId);
 
@@ -21,6 +22,7 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
       projectLink: finalRepoUrl,
       username: user?.username,
       userId,
+      token: user?.github_token,
     })
   );
 
@@ -140,4 +142,31 @@ export const updateENV = asyncHandler(async (req, resp) => {
   );
 
   resp.status(200).json(new ApiResponse('Environment variables updated successfully', 200, null));
+});
+
+export const buildByWebHook = asyncHandler(async (req, resp) => {
+  let { userId } = req.query;
+
+  const project = await Project.findOne({
+    creatorId: userId,
+  });
+
+  if (!project) {
+    throw new ApiError('Project not found', 404);
+  }
+
+  const token = project.project_url.split('//')[1].split('@')[0];
+  await MessageQueue.pushOnQueue(
+    'project-config',
+    JSON.stringify({
+      projectName: project.name,
+      envVariables: project.env,
+      projectLink: project.project_url,
+      username: project.createdBy,
+      userId: project.creatorId,
+      token,
+    })
+  );
+
+  resp.status(200).json(new ApiResponse('Build triggered successfully', 200, null));
 });

@@ -24,9 +24,7 @@ SocketProvider.getInstance(server);
 
 (async () => {
   await MessageQueue.receiveFromQueue('project-config', async (msg: any) => {
-    console.log('Received message:', msg.content.toString());
-    console.log('awskeyid', process.env.AWS_ACCESS_KEY_ID);
-    console.log('awssecretkey', process.env.AWS_SECRET_ACCESS_KEY);
+    console.log('Received message from project-config queue:', msg.content.toString());
     await runBuildContainer(JSON.parse(msg.content.toString()));
   });
 })();
