@@ -23,6 +23,9 @@ export const projectConfigHandler = asyncHandler(async (req, resp) => {
       username: user?.username,
       userId,
       token: user?.github_token,
+      isBackendChanges: true,
+      isFrontendChanges: true,
+      type: 'direct',
     })
   );
 
@@ -146,7 +149,21 @@ export const updateENV = asyncHandler(async (req, resp) => {
 
 export const buildByWebHook = asyncHandler(async (req, resp) => {
   let { userId } = req.query;
-  const { after } = req.body;
+  const { after, commits } = req.body;
+  console.log('commits->:', commits);
+  const isBackendChanges = commits.some((commit: any) => {
+    console.log(commit.modified);
+    const flag = commit.modified[0]?.split('/');
+    return flag && flag.includes('server');
+  });
+
+  const isFrontendChanges = commits.some((commit: any) => {
+    console.log(commit.modified);
+    const flag = commit.modified[0]?.split('/');
+    return flag && flag.includes('client');
+  });
+
+  console.log('isBackendChanges:', isBackendChanges);
 
   const project = await Project.findOne({
     creatorId: userId,
@@ -164,7 +181,7 @@ export const buildByWebHook = asyncHandler(async (req, resp) => {
     sha: after,
     state: 'pending',
     description: 'Deployment pending....',
-    context: 'webhook-trigger',
+    context: 'Shipper',
     githubToken: token,
   });
 
@@ -178,6 +195,9 @@ export const buildByWebHook = asyncHandler(async (req, resp) => {
       userId: project.creatorId,
       token,
       sha: after,
+      isBackendChanges,
+      isFrontendChanges,
+      type: 'webhook',
     })
   );
 

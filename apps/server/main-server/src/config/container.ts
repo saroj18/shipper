@@ -100,6 +100,8 @@ export const runBuildContainer = async (projectInfo: any) => {
         `AWS_ECR_REPOSITORY_URL=${process.env.AWS_ECR_REPOSITORY_URL}`,
         `AWS_REGION=${process.env.AWS_REGION}`,
         `AWS_ECR_AUTH_CMD=${process.env.AWS_ECR_AUTH_CMD}`,
+        `USER_SERVER_PATH=${projectInfo?.isBackendChanges}`,
+        `USER_CLIENT_PATH=${projectInfo?.isFrontendChanges}`,
         `IMAGE_NAME=${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}`,
         `AWS_ECR_REPOSITORY_NAME=${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}`,
         // ...env,
@@ -196,12 +198,7 @@ export const runBuildContainer = async (projectInfo: any) => {
     });
     if (!findProject?.webHook) {
       console.log('Adding webhook for project:', projectInfo.projectLink);
-      await addWebhook(
-        projectInfo.username as string,
-        projectInfo.projectLink.split('/').pop()?.replace('.git', '') as string,
-        `https://31ee-2405-acc0-1207-8b54-f5ce-dfdb-f301-58b8.ngrok-free.app/api/v1/project/web-hook?userId=${projectInfo.userId}`,
-        projectInfo.token as string
-      );
+      console.log('Adding webhook for webhook:', findProject?.webHook);
     }
 
     if (findProject) {
@@ -209,27 +206,28 @@ export const runBuildContainer = async (projectInfo: any) => {
         userId: projectInfo.userId,
         payload: true,
       });
-      await Project.updateMany(
-        { project_url: projectInfo.projectLink },
-        {
-          serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
-          env: projectInfo.envVariables,
-          serverStatus: 'running',
-          webHook: true,
-          clientDomain: projectInfo.clientExists
-            ? projectInfo.username.toLowerCase() +
-              '-' +
-              projectInfo.projectName.toLowerCase() +
-              '-client'
-            : null,
-          serverDomain: projectInfo.serverExists
-            ? projectInfo.username.toLowerCase() +
-              '-' +
-              projectInfo.projectName.toLowerCase() +
-              '-server'
-            : null,
-        }
-      );
+      if (projectInfo?.type != 'webhook') {
+        await Project.updateMany(
+          { project_url: projectInfo.projectLink },
+          {
+            serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
+            env: projectInfo.envVariables,
+            serverStatus: 'running',
+            clientDomain: projectInfo.clientExists
+              ? projectInfo.username.toLowerCase() +
+                '-' +
+                projectInfo.projectName.toLowerCase() +
+                '-client'
+              : null,
+            serverDomain: projectInfo.serverExists
+              ? projectInfo.username.toLowerCase() +
+                '-' +
+                projectInfo.projectName.toLowerCase() +
+                '-server'
+              : null,
+          }
+        );
+      }
       const containerName =
         `/${projectInfo.username}-${projectInfo.projectName}-server`.toLocaleLowerCase();
       const existingContainers = await docker.listContainers({ all: true });
@@ -250,14 +248,14 @@ export const runBuildContainer = async (projectInfo: any) => {
       await image.remove();
       const BASE_PATH = `http://localhost:10000/start-server/?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
       const resp = await fetch(BASE_PATH);
-      if (resp.ok) {
+      if (resp.ok && findProject?.webHook) {
         setGitHubStatus({
           owner: projectInfo.username,
           repo: projectInfo.projectName,
           sha: projectInfo.sha,
           state: 'success',
           description: 'Deployment successful',
-          context: 'webhook-trigger',
+          context: 'Shipper',
           githubToken: projectInfo.token,
         });
       }
@@ -266,14 +264,22 @@ export const runBuildContainer = async (projectInfo: any) => {
         userId: projectInfo.userId,
         payload: true,
       });
+
+      await addWebhook(
+        projectInfo.username as string,
+        projectInfo.projectLink.split('/').pop()?.replace('.git', '') as string,
+        `${process.env.WEBHOOK_URL}?userId=${projectInfo.userId}`,
+        projectInfo.token as string
+      );
+
       const pro = await Project.create({
         name: projectInfo.projectName,
         createdBy: projectInfo.username,
         project_url: projectInfo.projectLink,
-        webHook: true,
         serverDockerImage: `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`,
         env: projectInfo.envVariables,
         serverStatus: 'running',
+        webHook: true,
         creatorId: projectInfo.userId,
         clientDomain: projectInfo.clientExists
           ? projectInfo.username.toLowerCase() +
@@ -288,21 +294,11 @@ export const runBuildContainer = async (projectInfo: any) => {
             '-server'
           : null,
       });
+
       console.log('Project created:', pro);
       const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
       const resp = await fetch(BASE_PATH);
       console.log('Response from start-server:', resp.status, resp.statusText, resp.ok);
-      if (resp.ok) {
-        setGitHubStatus({
-          owner: projectInfo.username,
-          repo: projectInfo.projectName,
-          sha: projectInfo.sha,
-          state: 'success',
-          description: 'Deployment successful',
-          context: 'webhook-trigger',
-          githubToken: projectInfo.token,
-        });
-      }
     }
   } catch (error: any) {
     CacheProvider.publishToChannel('build_status', {
@@ -316,7 +312,7 @@ export const runBuildContainer = async (projectInfo: any) => {
       sha: projectInfo.sha,
       state: 'failure',
       description: `Deployment failed: ${error.message}`,
-      context: 'webhook-trigger',
+      context: 'Shipper',
       githubToken: projectInfo.token,
     });
   }

@@ -3,6 +3,8 @@
 export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
 export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION="ap-south-1"
+export USER_CLIENT_PATH="$USER_CLIENT_PATH"
+export USER_SERVER_PATH="$USER_SERVER_PATH"
 
 export GIT_REPOSITORY__URL="$GIT_REPOSITORY__URL"
 
@@ -49,7 +51,7 @@ fi
   exit 1
 }
 
-if [ "$CLIENT_PATH" == "client" ]; then
+if [[ "$USER_CLIENT_PATH" == true  &&  "$CLIENT_PATH" == "client" ]]; then
 echo "CLIENT_IS_HERE"
 # goes on client directory
 
@@ -135,7 +137,7 @@ fi
 
 # for server code
 
-if [[ "$SERVER_PATH" == "server" ]]; then
+if [[ "$USER_SERVER_PATH" == true && "$SERVER_PATH" == "server" ]]; then
 
 echo "SERVER_IS_HERE"
 # goes on server directory
