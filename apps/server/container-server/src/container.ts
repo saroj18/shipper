@@ -148,7 +148,7 @@ export const runServerInsideContainer = async (
           userId,
           payload: chunk.toString('utf8'),
         });
-      }, 500);
+      }, 200);
     });
     await Project.updateOne(
       { serverDomain: `${createdBy.toLowerCase()}-${projectName.toLowerCase()}-server` },

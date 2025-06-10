@@ -20,12 +20,12 @@ const Navbar = () => {
           <Logo />
           <nav className="hidden md:flex gap-16">
            
-            <Link
+            {/* <Link
               to="#"
               className="text-lg font-medium text-muted-background transition-colors hover:text-foreground"
             >
               Solutions
-            </Link>
+            </Link> */}
             <Link
               to="#"
               className="text-lg font-medium text-muted-background transition-colors hover:text-foreground"
@@ -33,12 +33,12 @@ const Navbar = () => {
               Documentation
             </Link>
 
-            <Link
+            {/* <Link
               to="#"
               className="text-lg font-medium text-muted-background transition-colors hover:text-foreground"
             >
               Pricing
-            </Link>
+            </Link> */}
           </nav>
         </div>
 

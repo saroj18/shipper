@@ -16,8 +16,8 @@ const Navbar = ({ activeItem }: NavbarProps) => {
 
   const navItems: NavItem[] = [
     { label: 'Project', href: '' },
-    { label: 'Deployments', href: 'deployment' },
-    { label: 'Logs', href: 'logs' },
+    // { label: 'Deployments', href: 'deployment' },
+    // { label: 'Logs', href: 'logs' },
     { label: 'Settings', href: 'settings' },
   ];
 
