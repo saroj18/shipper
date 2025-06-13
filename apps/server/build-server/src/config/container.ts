@@ -246,7 +246,7 @@ export const runBuildContainer = async (projectInfo: any) => {
         `${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3`
       );
       await image.remove();
-      const BASE_PATH = `http://localhost:10000/start-server/?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
+      const BASE_PATH = `${process.env.CONTAINER_SERVER_URL}/start-server/?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
       const resp = await fetch(BASE_PATH);
       if (resp.ok && findProject?.webHook) {
         setGitHubStatus({
@@ -296,7 +296,7 @@ export const runBuildContainer = async (projectInfo: any) => {
       });
 
       console.log('Project created:', pro);
-      const BASE_PATH = `http://localhost:10000/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
+      const BASE_PATH = `${process.env.CONTAINER_SERVER_URL}/start-server?image=${process.env.AWS_ECR_REPOSITORY_URL}/${projectInfo.username.toLowerCase()}-${projectInfo.projectName.toLowerCase()}:v3&&flag=${projectInfo.username}-${projectInfo.projectName}&env=${projectInfo.envVariables}&userId=${projectInfo.userId}`;
       const resp = await fetch(BASE_PATH);
       console.log('Response from start-server:', resp.status, resp.statusText, resp.ok);
     }

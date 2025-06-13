@@ -1,18 +1,16 @@
-import { server } from './app.js';
 import dotenv from 'dotenv';
-import { MongoDBConnection, MySQLConnection } from '@repo/database';
-import { ENV } from './ENV-Config.js';
-import { runQueueJob } from './worker.js';
+import { connectDB } from './dbConnect/dbConnection.js';
+import { server } from './app.js';
+import { CacheProvider } from '@repo/redis';
 dotenv.config();
 
-MySQLConnection.getInstance()
-  .then(() => {
-    MongoDBConnection.getInstance().then(async () => {
-      server.listen(ENV.PORT, () => {
-        console.log('database and server started successfully at port', ENV.PORT);
-      });
-      await runQueueJob();
+connectDB()
+  .then(async () => {
+    server.listen(process.env.PORT, () => {
+      console.log('database and server started successfully at port', process.env.PORT);
     });
+    await CacheProvider.subscribeToChannel('build_status');
+    await CacheProvider.subscribeToChannel('build_logs');
   })
   .catch((err: any) => {
     console.log(err.message);

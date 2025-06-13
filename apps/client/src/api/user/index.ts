@@ -1,9 +1,9 @@
-import { apiClient } from "..";
 import { useQuery } from "@tanstack/react-query";
 import type { UserType } from "../types";
+import { apiClientMainServer } from "..";
 
 const getuser = async () => {
-  const { data } = await apiClient.get("/user");
+  const { data } = await apiClientMainServer.get("/user");
   return data;
 };
 
@@ -16,6 +16,6 @@ export const getUser = () => {
   });
 };
 export const logoutUser = async () => {
-  const { data } = await apiClient.get("/user/logout");
+  const { data } = await apiClientMainServer.get("/user/logout");
   return data;
 };

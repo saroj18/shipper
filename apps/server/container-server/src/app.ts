@@ -13,7 +13,7 @@ export const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.ORIGIN || 'http://localhost:5173',
     credentials: true,
     methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
   })

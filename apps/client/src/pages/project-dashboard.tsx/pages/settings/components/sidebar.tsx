@@ -15,7 +15,7 @@ interface SidebarProps {
 
 const Sidebar = ({ activeItem = 'General' }: SidebarProps) => {
   const [active, setActive] = useState(activeItem);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery] = useState('');
 
   const sidebarItems: SidebarItem[] = [
     { name: 'General', href: '' },
@@ -40,7 +40,7 @@ const Sidebar = ({ activeItem = 'General' }: SidebarProps) => {
                     ? 'text-white font-medium'
                     : 'text-zinc-400 hover:text-zinc-200'
                 )}
-                onClick={(e) => {
+                onClick={() => {
                   //   e.preventDefault();
                   setActive(item.name);
                 }}

@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '..';
 import type { AllRepoType, SingleRepoType } from '../types';
+import { apiClientMainServer } from '..';
 
 export const getAllRepos = async () => {
-  const { data } = await apiClient.get('/github/repos');
+  const { data } = await apiClientMainServer.get('/github/repos');
   return data;
 };
 
 export const getSingleRepo = async (repoId: string) => {
-  const { data } = await apiClient.get('/github/repo/' + repoId);
+  const { data } = await apiClientMainServer.get('/github/repo/' + repoId);
   return data;
 };
 

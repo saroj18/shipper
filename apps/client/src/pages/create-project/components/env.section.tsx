@@ -20,8 +20,8 @@ type EnvSectionProps = {
   setProjectInfo: React.Dispatch<React.SetStateAction<ProjectInfoType>>;
 };
 
-const EnvSection = ({ projectInfo, setProjectInfo }: EnvSectionProps) => {
-  const [envVarsOpen, setEnvVarsOpen] = useState(false);
+const EnvSection = ({  setProjectInfo }: EnvSectionProps) => {
+  const [envVarsOpen] = useState(false);
   const [envVars, setEnvVars] = useState([
     { key: "", value: "" },
   ]);

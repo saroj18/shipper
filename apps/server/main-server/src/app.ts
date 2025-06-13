@@ -4,32 +4,49 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import http from 'http';
 import dotenv from 'dotenv';
-import { MessageQueue } from '@repo/rabbitmq';
-import { runBuildContainer } from './config/container.js';
+// import GoogleStrategy from "passport-google-oauth20";
+import GithubStrategy from 'passport-github';
+import passport from 'passport';
+import { userRouter } from './route/user-route.js';
+import { userGithubRouter } from './route/user-github-route.js';
+import { projectRouter } from './route/project-route.js';
 import { SocketProvider } from '@repo/socket';
 dotenv.config();
 
 export const app = express();
 
 export const server = http.createServer(app);
+SocketProvider.getInstance(server);
 
 app.use(express.json());
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.ORIGIN || 'http://localhost:5173',
     credentials: true,
+    methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
   })
 );
-SocketProvider.getInstance(server);
 
-(async () => {
-  await MessageQueue.receiveFromQueue('project-config', async (msg: any) => {
-    console.log('Received message from project-config queue:', msg.content.toString());
-    await runBuildContainer(JSON.parse(msg.content.toString()));
-  });
-})();
-
+passport.use(
+  new GithubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+      callbackURL: process.env.GITHUB_CALLBACK_URL,
+      passReqToCallback: true,
+    },
+    function (request, accessToken, refreshToken, profile, done) {
+      return done(null, { ...profile, accessToken });
+    }
+  )
+);
+app.get('/', (req, resp) => {
+  resp.send('Welcome to Build Server');
+});
 app.use(cookieParser());
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/github', userGithubRouter);
+app.use('/api/v1/project', projectRouter);
 app.use((err: ApiError, req: Request, resp: Response, next: NextFunction) => {
   globalErrorHandler(err, resp);
 });

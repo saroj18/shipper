@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Upload, Pencil, X } from 'lucide-react';
+import { Plus, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -9,15 +9,9 @@ import type { Project } from '@/api/types';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-interface EnvVar {
-  key: string;
-  value: string;
-}
-
 const EnvironmentVariables = () => {
   const [activeTab, setActiveTab] = useState('create');
   const [isSensitive] = useState(false);
-  const [environment] = useState('all');
   const [envVars, setEnvVars] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const { payload } = useParams();
@@ -52,7 +46,7 @@ const EnvironmentVariables = () => {
 
   const handleSave = async () => {
     console.log('envVars', payload, envVars);
-  
+
     setIsSaving(true);
     mutate({ env: envVars as any[], payload: payload as string });
     setIsSaving(false);

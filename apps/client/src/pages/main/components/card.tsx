@@ -1,10 +1,6 @@
 import {
   GitBranch,
   GithubIcon,
-  Menu,
-  MenuSquareIcon,
-  MoreHorizontal,
-  MoreVertical,
 } from 'lucide-react';
 import { Link } from 'react-router';
 

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Pause, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Header from './components/header';
@@ -23,7 +22,7 @@ const ProjectDashboard = ({}) => {
   const { mutate, isPending: stopLoading } = useMutation({
     mutationFn: ({ containerName, image }: { containerName: string; image: string }) =>
       stopServer(containerName, image),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Server stopped successfully');
 
       queryClient.invalidateQueries({ queryKey: ['projectInfo', payload] });
@@ -36,7 +35,7 @@ const ProjectDashboard = ({}) => {
   const { mutate: startMutate, isPending: startLoading } = useMutation({
     mutationFn: ({ image, userId }: { image: string; userId: string }) =>
       startServer(image, userId),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Server Started successfully');
 
       queryClient.invalidateQueries({ queryKey: ['projectInfo', payload] });

@@ -29,7 +29,7 @@ app.use(async (req, res) => {
 
     if (container_info) {
       return proxy.web(req, res, {
-        target: `http://localhost:${container_info.host_port}`,
+        target: `${process.env.CONTAINER_SERVER_ORIGIN}:${container_info.host_port}`,
         changeOrigin: true,
       });
     }
@@ -50,7 +50,7 @@ app.use(async (req, res) => {
       res.status(400).send({ error: 'your server is stopped please start it from dashboard' });
       return;
     }
-    const BASE_PATH = `http://localhost:10000/start-server?image=${project.serverDockerImage}&&flag=${project.createdBy}-${project.name}&&env=${project.env}&&userId=${project.creatorId}`;
+    const BASE_PATH = `${process.env.CONTAINER_SERVER_URL}/start-server?image=${project.serverDockerImage}&&flag=${project.createdBy}-${project.name}&&env=${project.env}&&userId=${project.creatorId}`;
 
     return proxy.web(req, res, { target: BASE_PATH, changeOrigin: true });
   } else {
