@@ -14,7 +14,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@aws-sdk/client-ecr": "^3.817.0",
+    "@aws-sdk/client-ecr": "^3.817.0"
+  },
+  "devDependencies": {
     "@repo/redis": "^1.0.0",
     "@repo/utils": "^1.0.0"
   }

@@ -13,11 +13,10 @@
   "author": "",
   "license": "ISC",
   "type": "module",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@types/http-proxy": "^1.17.16",
     "@repo/database": "^1.0.0",
     "http-proxy": "^1.18.1"
-  },
-  "devDependencies": {
-    "@types/http-proxy": "^1.17.16"
   }
 }

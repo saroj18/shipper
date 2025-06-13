@@ -90,7 +90,7 @@ export const deleteProject = asyncHandler(async (req, resp) => {
     );
     await MessageQueue.pushOnQueue(
       'delete-server-image-from-ecr',
-      JSON.stringify({ repo_name: `${payload[0]}-${payload[1]}` })
+      JSON.stringify({ repo_name: `${payload[0].toLowerCase()}-${payload[1].toLowerCase()}` })
     );
     resp.status(200).json(new ApiResponse('Project deleted successfully [CNSY]', 200, null));
     return;
