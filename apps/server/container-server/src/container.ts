@@ -51,7 +51,7 @@ export const runServerInsideContainer = async (
   userId: string
 ) => {
   const [createdBy, projectName] = flag.split('-');
-  const containerName = `${createdBy}-${projectName}-server`.toLocaleLowerCase();
+  const containerName = `${createdBy}-${projectName}-server`.toLowerCase();
 
   try {
     const exists = await imageExistsLocally(image);
@@ -121,6 +121,8 @@ export const runServerInsideContainer = async (
 
     await container.start();
     console.log(`[Info] Container started: ${containerName}`);
+    console.log(`[Info] Container ID: ${container.id}`);
+    console.log(`[Info] existingContainer:`, existingContainer);
     CacheProvider.saveDataOnCache(
       `${containerName}`,
       JSON.stringify({

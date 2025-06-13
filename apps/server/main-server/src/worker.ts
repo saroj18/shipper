@@ -49,10 +49,10 @@ export const runQueueJob = async () => {
   });
   await MessageQueue.receiveFromQueue('delete-server-image-from-ecr', async (msg: any) => {
     try {
-      console.log('Received message for S3 deletion:', msg.content.toString());
+      console.log('Received message for ECR deletion:', msg.content.toString());
       const { repo_name } = JSON.parse(msg.content.toString());
       const input: DeleteRepositoryCommandInput = {
-        repositoryName: repo_name,
+        repositoryName: repo_name.toLowerCase(),
         force: true,
       };
       await client.send(new DeleteRepositoryCommand(input));

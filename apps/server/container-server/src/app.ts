@@ -66,6 +66,7 @@ app.get('/stop-server', async (req, resp) => {
     }
 
     const cachedData = await CacheProvider.getDataFromCache(containerName as string);
+    console.log('cachedData:', cachedData);
     if (!cachedData) {
       throw new ApiError('your server is failed please re-deploy it with valid configuration', 400);
     }
@@ -97,6 +98,7 @@ app.get('/stop-server', async (req, resp) => {
       containerPort: 3000,
     });
   } catch (error: any) {
+    console.error('Error stopping server:', error);
     resp.status(400).send({ error: error.message });
   }
 });

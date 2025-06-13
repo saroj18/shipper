@@ -3,6 +3,7 @@ import { User } from '@repo/database/models/user.model.js';
 import { Project } from '@repo/database/models/project.model.js';
 import { CacheProvider } from '@repo/redis';
 import { MessageQueue } from '@repo/rabbitmq';
+import { deleteWebhook } from '../delete-webhook.js';
 
 export const projectConfigHandler = asyncHandler(async (req, resp) => {
   const { projectLink } = req.body;
@@ -79,9 +80,11 @@ export const deleteProject = asyncHandler(async (req, resp) => {
   if (!project) {
     throw new ApiError('Project not found', 404);
   }
-  const containerName = `${payload[0]}-${payload[1]}-server`;
+  const containerName = `${payload[0]}-${payload[1]}-server`.toLowerCase();
+  console.log('containerName:', containerName);
 
   const cacheData = await CacheProvider.getDataFromCache(containerName as string);
+  console.log('cacheData:', cacheData);
   if (!cacheData) {
     await Project.deleteOne({ name: payload[1], createdBy: payload[0] });
     await MessageQueue.pushOnQueue(
@@ -92,6 +95,8 @@ export const deleteProject = asyncHandler(async (req, resp) => {
       'delete-server-image-from-ecr',
       JSON.stringify({ repo_name: `${payload[0].toLowerCase()}-${payload[1].toLowerCase()}` })
     );
+
+    await deleteWebhook(payload[0], payload[1]);
     resp.status(200).json(new ApiResponse('Project deleted successfully [CNSY]', 200, null));
     return;
   }
@@ -118,7 +123,7 @@ export const deleteProject = asyncHandler(async (req, resp) => {
     'delete-server-image-from-ecr',
     JSON.stringify({ repo_name: `${payload[0]}-${payload[1]}` })
   );
-
+  await deleteWebhook(payload[0], payload[1]);
   resp.status(200).json(new ApiResponse('Project deleted successfully', 200, null));
 });
 

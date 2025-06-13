@@ -1,11 +1,10 @@
-import express, { Response } from 'express';
+import express from 'express';
 import http from 'http';
 import dotenv from 'dotenv';
 import httpProxy from 'http-proxy';
 import { Project } from '@repo/database/models/project.model.js';
 dotenv.config();
 import { CacheProvider } from '@repo/redis';
-import { ApiError } from '@repo/utils';
 
 export const app = express();
 

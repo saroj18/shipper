@@ -1,3 +1,4 @@
+import { CacheProvider } from '@repo/redis';
 import axios from 'axios';
 
 export async function addWebhook(
@@ -21,7 +22,7 @@ export async function addWebhook(
       },
       {
         headers: {
-          Authorization: `Bearer ${github_token}`,
+          Authorization: `token ${github_token}`,
           Accept: 'application/vnd.github.v3+json',
           'User-Agent': github_username,
         },
@@ -29,6 +30,10 @@ export async function addWebhook(
     );
 
     console.log('✅ Webhook added:', response.data);
+    await CacheProvider.saveDataOnCache(
+      `${github_username}-${github_repo_name}-webhook`,
+      JSON.stringify({ webHookId: response.data.id, token: github_token })
+    );
   } catch (error: any) {
     if (error.response) {
       console.error('❌ GitHub API Error:', error.response.data);
@@ -37,4 +42,3 @@ export async function addWebhook(
     }
   }
 }
-
