@@ -1,5 +1,5 @@
 {
-  "name": "client_handler_proxy-server",
+  "name": "proxy-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
