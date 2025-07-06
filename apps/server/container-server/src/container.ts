@@ -129,9 +129,9 @@ export const runServerInsideContainer = async (
         containerId: container.id,
         container_name: containerName,
         host_port: port,
-        container_port: existingContainer?.Ports[0].PrivatePort,
-        ip: existingContainer?.Ports[0].IP,
-        container_host_url: `${process.env.CONTAINER_SERVER_ORIGIN}/${existingContainer?.Ports[0].PublicPort}`,
+        container_port: existingContainer?.Ports[0]?.PrivatePort,
+        ip: existingContainer?.Ports[0]?.IP,
+        container_host_url: `${process.env.CONTAINER_SERVER_ORIGIN}/${existingContainer?.Ports[0]?.PublicPort}`,
         userId,
       })
     );

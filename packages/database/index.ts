@@ -49,24 +49,19 @@ export class MySQLConnection implements DBConnection {
     return MySQLConnection.instance;
   }
 
-    async connect() {
+  async connect() {
     try {
-      const sequelize = new Sequelize(
-        process.env.DB_NAME as string,
-        process.env.DB_USER as string,
-        process.env.DB_PASSWORD as string,
-        {
-          host: process.env.DB_HOST,
-          port: 3306,
-          dialect: 'mysql',
-          pool: {
-            max: 10,
-            min: 0,
-            acquire: 30000,
-            idle: 10000,
-          },
-        }
-      );
+      const sequelize = new Sequelize('shipper', 'root', 'password', {
+        host: 'localhost',
+        port: 3306,
+        dialect: 'mysql',
+        pool: {
+          max: 10,
+          min: 0,
+          acquire: 30000,
+          idle: 10000,
+        },
+      });
       await sequelize.authenticate();
       await sequelize.sync();
       await getSequelizeInstance(sequelize);

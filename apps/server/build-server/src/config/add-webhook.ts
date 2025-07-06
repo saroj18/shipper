@@ -32,7 +32,7 @@ export async function addWebhook(
     console.log('✅ Webhook added:', response.data);
     await CacheProvider.saveDataOnCache(
       `${github_username}-${github_repo_name}-webhook`,
-      JSON.stringify({ webHookId: response.data.id, token: github_token })
+      JSON.stringify({ webHookId: (response.data as any).id, token: github_token })
     );
   } catch (error: any) {
     if (error.response) {

@@ -19,13 +19,13 @@ export async function setGitHubStatus({
   context = 'custom-deploy',
   githubToken,
 }: SetGitHubStatusParams): Promise<void> {
-  console.log("owner", owner);
-  console.log("repo", repo);
-  console.log("sha", sha);
-  console.log("state", state);
-  console.log("description", description);
-  console.log("context", context);
-  console.log("githubToken", githubToken);
+  console.log('owner', owner);
+  console.log('repo', repo);
+  console.log('sha', sha);
+  console.log('state', state);
+  console.log('description', description);
+  console.log('context', context);
+  console.log('githubToken', githubToken);
   try {
     await axios.post(
       `https://api.github.com/repos/${owner}/${repo}/statuses/${sha}`,
@@ -42,11 +42,6 @@ export async function setGitHubStatus({
       }
     );
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Error setting GitHub status:', error.response?.data || error.message);
-    } else {
-      console.error('Unexpected error setting GitHub status:', error);
-    }
-    throw new Error('Failed to set GitHub status');
+    console.error('Unexpected error setting GitHub status:', error);
   }
 }

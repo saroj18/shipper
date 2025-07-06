@@ -6,7 +6,7 @@ import http from 'http';
 import dotenv from 'dotenv';
 import { MessageQueue } from '@repo/rabbitmq';
 import { runBuildContainer } from './config/container.js';
-import { SocketProvider } from '@repo/socket';
+import { CacheProvider } from '@repo/redis';
 dotenv.config();
 
 export const app = express();
@@ -20,7 +20,7 @@ app.use(
     credentials: true,
   })
 );
-SocketProvider.getInstance(server);
+CacheProvider.getSocketInstance(server);
 
 (async () => {
   await MessageQueue.receiveFromQueue('project-config', async (msg: any) => {

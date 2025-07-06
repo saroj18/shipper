@@ -10,13 +10,13 @@ import passport from 'passport';
 import { userRouter } from './route/user-route.js';
 import { userGithubRouter } from './route/user-github-route.js';
 import { projectRouter } from './route/project-route.js';
-import { SocketProvider } from '@repo/socket';
+import { CacheProvider } from '@repo/redis';
 dotenv.config();
 
 export const app = express();
 
 export const server = http.createServer(app);
-SocketProvider.getInstance(server);
+CacheProvider.getSocketInstance(server);
 
 app.use(express.json());
 app.use(

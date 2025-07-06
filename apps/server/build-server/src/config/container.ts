@@ -74,16 +74,16 @@ const pullImage = async (image: string): Promise<void> => {
 export const runBuildContainer = async (projectInfo: any) => {
   console.log('Running build container with project info:', projectInfo);
   const exists = await imageExistsLocally(
-    '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1'
+    '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:latest'
   );
   if (!exists) {
     await getEcrAuth();
-    await pullImage('730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1');
+    await pullImage('730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:latest');
   }
 
   try {
     const container = await docker.createContainer({
-      Image: '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:v1',
+      Image: '730335220956.dkr.ecr.ap-south-1.amazonaws.com/builder:latest',
       Env: [
         `PROJECT_NAME=${projectInfo.projectName}`,
         `GIT_REPOSITORY__URL=${projectInfo.projectLink}`,

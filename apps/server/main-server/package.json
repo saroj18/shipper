@@ -14,6 +14,11 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@repo/database": "^1.0.0",
+    "@repo/rabbitmq": "^1.0.0",
+    "@repo/redis": "^1.0.0",
+    "@repo/typescript-config": "^0.0.0",
+    "@repo/utils": "*",
     "@types/amqplib": "^0.10.7",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.18",
@@ -22,11 +27,7 @@
     "@types/passport": "^1.0.17",
     "@types/passport-github": "^1.1.12",
     "passport-github-oauth20": "^1.0.4",
-    "ts-node": "^10.9.2",
-    "@repo/database": "^1.0.0",
-    "@repo/rabbitmq": "^1.0.0",
-    "@repo/redis": "^1.0.0",
-    "@repo/utils": "*"
+    "ts-node": "^10.9.2"
   },
   "dependencies": {
     "@aws-sdk/client-ecr": "^3.825.0",

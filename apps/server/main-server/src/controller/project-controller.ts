@@ -97,7 +97,7 @@ export const deleteProject = asyncHandler(async (req, resp) => {
     );
 
     await deleteWebhook(payload[0], payload[1]);
-    resp.status(200).json(new ApiResponse('Project deleted successfully [CNSY]', 200, null));
+    resp.status(200).json(new ApiResponse('Project deleted successfully [CNSY]', 200, null));//cannot stop yet
     return;
   }
   const info = cacheData ? JSON.parse(cacheData) : null;
