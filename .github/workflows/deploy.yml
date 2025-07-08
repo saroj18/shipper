@@ -28,11 +28,11 @@ jobs:
           ssh-keyscan -H ${{ secrets.BUILD_SERVER_IP }} >> ~/.ssh/known_hosts
           cd build-server.deploy
           npm install
-          echo "${{ secrets.BUILD_SERVER_KEY }}" > build_server.pem
           chmod 700 build_server.pem
           npm run build
 
           cd apps/server/build-server
+          echo "${{ secrets.BUILD_SERVER_KEY }}" > build_server.pem
           if [[ -d dist ]];then
             scp -i build_server.pem -r dist/* ubuntu@${{ secrets.BUILD_SERVER_IP }}:/home/ubuntu/demo
           else
