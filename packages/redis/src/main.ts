@@ -12,10 +12,11 @@ export class CacheProvider {
   private static sub: Redis | null = null;
 
   public static getInstance() {
+    console.log('redis>>>>',process.env.REDIS_SERVER)
     if (!this.instance) {
       this.instance = new Redis({
         port: 6379,
-        host: process.env.REDIS_SERVER,
+        host: process.env.REDIS_SERVER || '143.244.141.66',
         password: '',
         db: 0,
       });
