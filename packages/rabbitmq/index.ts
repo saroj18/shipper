@@ -8,7 +8,7 @@ export class MessageQueue {
   public static async getInstance(): Promise<amqp.ChannelModel> {
     if (!MessageQueue.instance) {
       console.log('Creating a new instance of MessageQueue');
-      this.instance = await amqp.connect('amqp://guest:guest@localhost:5672');
+      this.instance = await amqp.connect(process.env.RABBITMQ_SERVER);
     }
     return this.instance;
   }

@@ -15,7 +15,7 @@ export class CacheProvider {
     if (!this.instance) {
       this.instance = new Redis({
         port: 6379,
-        host: '127.0.0.1',
+        host: process.env.REDIS_HOST,
         password: '',
         db: 0,
       });
