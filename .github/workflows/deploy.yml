@@ -44,7 +44,7 @@ jobs:
           echo "start to run server"
             node apps/server/build-server/dist/server.js
           else
-            echo "dist folder is not found"
+            echo "dist folder is not found!!!!"
           fi
           EOF
 
