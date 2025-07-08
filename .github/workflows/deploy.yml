@@ -23,6 +23,7 @@ jobs:
 
       - name: Deploy Main Server
         run: |
+          npm ci
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           ssh-keyscan -H ${{ secrets.BUILD_SERVER_IP }} >> ~/.ssh/known_hosts
