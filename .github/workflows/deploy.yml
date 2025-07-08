@@ -24,11 +24,11 @@ jobs:
       - name: Deploy Main Server
         run: |
           mkdir -p ~/.ssh
-          chmod 600 ~/.ssh
+          chmod 700 ~/.ssh
           ssh-keyscan -H ${{ secrets.BUILD_SERVER_IP }} >> ~/.ssh/known_hosts
           cd build-server.deploy
           echo "${{ secrets.BUILD_SERVER_KEY }}" > build_server.pem
-          chmod 600 build_server.pem
+          chmod 700 build_server.pem
           npm run build
 
           if [[ -d dist ]];then
