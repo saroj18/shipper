@@ -35,7 +35,7 @@ jobs:
             echo "build-server.deploy folder not found"
             exit 1
           fi
-          ssh -i build_server.deploy ubuntu@${{ secrets.BUILD_SERVER_IP }} << 'EOF'
+          ssh -i build_server.pem ubuntu@${{ secrets.BUILD_SERVER_IP }} << 'EOF'
           cd /home/ubuntu/demo
           npm install
           npm run build
