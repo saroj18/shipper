@@ -1,0 +1,41 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+    
+  jobs:
+    seperate_build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Set up Node.js
+          uses: actions/setup-node@v2
+          with:
+            node-version: '20'
+
+        - name: Make seperate directories for each server
+          run: |
+            npm run build:deploy
+
+        - name: Deploy Main Server
+          run: |
+            mkdir -p ~/.ssh
+            chmod 600 ~/.ssh
+            ssh-keyscan -H ${{ secrets.BUILD_SERVER_IP }} >> ~/.ssh/known_hosts
+            cd build-server.deploy
+            echo "${{ secrets.BUILD_SERVER_KEY }}" > build_server.pem
+            chmod 600 build_server.pem
+            npm run build
+
+            if [[ -d dist ]];then
+              scp -i build_server.pem -r dist/* ubuntu@${{ secrets.BUILD_SERVER_IP }}:/home/ubuntu/demo
+            else
+              echo "build folder not found"
+              exit 1
+            fi
+
+ 
